@@ -29,16 +29,17 @@
 
 <div class="space-y-3">
 	<div>
-		<label class="text-sm text-slate-300">High-level change description</label>
+		<label for="coord-description" class="text-sm text-slate-300">High-level change description</label>
 		<textarea
+			id="coord-description"
 			class="w-full bg-slate-800 text-white border border-slate-700 rounded px-3 py-2 text-sm"
 			rows="3"
 			bind:value={description}
-		/>
+		></textarea>
 	</div>
 
 	<div>
-		<label class="text-sm text-slate-300">Repos / services</label>
+		<p class="text-sm text-slate-300">Repos / services</p>
 		<div class="flex flex-wrap gap-2 mt-1">
 			{#each coordinatorTemplate?.allowedRepos ?? [] as repo}
 				<button

@@ -42,8 +42,9 @@
 
 <form class="space-y-3" on:submit|preventDefault={submit}>
 	<div>
-		<label class="block text-sm text-slate-300 mb-1">Agent Template</label>
+		<label class="block text-sm text-slate-300 mb-1" for="agent-template">Agent Template</label>
 		<select
+			id="agent-template"
 			class="w-full bg-slate-800 text-white border border-slate-700 rounded px-3 py-2 text-sm"
 			bind:value={templateId}
 		>
@@ -56,45 +57,50 @@
 	</div>
 
 	<div>
-		<label class="block text-sm text-slate-300 mb-1">Prompt Text</label>
+		<label class="block text-sm text-slate-300 mb-1" for="prompt-text">Prompt Text</label>
 		<textarea
+			id="prompt-text"
 			class="w-full bg-slate-800 text-white border border-slate-700 rounded px-3 py-2 text-sm"
 			rows="3"
 			placeholder="Describe the task or question"
 			bind:value={promptText}
-		/>
+		></textarea>
 	</div>
 
 	<div>
-		<label class="block text-sm text-slate-300 mb-1">Code Snippet (optional)</label>
+		<label class="block text-sm text-slate-300 mb-1" for="code-snippet">Code Snippet (optional)</label>
 		<textarea
+			id="code-snippet"
 			class="w-full bg-slate-800 text-white border border-slate-700 rounded px-3 py-2 text-sm font-mono"
 			rows="3"
 			placeholder="// paste relevant code for refactor/eval"
 			bind:value={codeSnippet}
-		/>
+		></textarea>
 	</div>
 
 	<div class="grid grid-cols-1 md:grid-cols-3 gap-2">
 		<div>
-			<label class="block text-sm text-slate-300 mb-1">Repo</label>
+			<label class="block text-sm text-slate-300 mb-1" for="repo">Repo</label>
 			<input
+				id="repo"
 				class="w-full bg-slate-800 text-white border border-slate-700 rounded px-3 py-2 text-sm"
 				placeholder="vibeforge"
 				bind:value={repo}
 			/>
 		</div>
 		<div>
-			<label class="block text-sm text-slate-300 mb-1">Branch</label>
+			<label class="block text-sm text-slate-300 mb-1" for="branch">Branch</label>
 			<input
+				id="branch"
 				class="w-full bg-slate-800 text-white border border-slate-700 rounded px-3 py-2 text-sm"
 				placeholder="main"
 				bind:value={branch}
 			/>
 		</div>
 		<div>
-			<label class="block text-sm text-slate-300 mb-1">File Path</label>
+			<label class="block text-sm text-slate-300 mb-1" for="file-path">File Path</label>
 			<input
+				id="file-path"
 				class="w-full bg-slate-800 text-white border border-slate-700 rounded px-3 py-2 text-sm"
 				placeholder="src/lib/feature.ts"
 				bind:value={filePath}

@@ -20,8 +20,9 @@
 
 <div class="space-y-3">
 	<div>
-		<label class="text-sm text-slate-300">Allowed Repos (comma-separated)</label>
+		<label for="allowed-repos" class="text-sm text-slate-300">Allowed Repos (comma-separated)</label>
 		<input
+			id="allowed-repos"
 			class="w-full bg-slate-800 text-white border border-slate-700 rounded px-3 py-2 text-sm mt-1"
 			bind:value={allowedReposText}
 		/>

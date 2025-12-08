@@ -79,7 +79,7 @@
 			<div class="bg-slate-900 border border-slate-700 rounded-lg p-4 w-full max-w-md space-y-3">
 				<h4 class="text-lg font-semibold text-white">Update Constraints</h4>
 				<div class="space-y-2">
-					<label class="text-sm text-slate-300">Allowed Repos (toggle)</label>
+					<p class="text-sm text-slate-300">Allowed Repos (toggle)</p>
 					<div class="flex flex-wrap gap-2">
 						{#each (session.metadata?.allowedRepos as string[]) ?? [] as repo}
 							<button
@@ -97,8 +97,9 @@
 					</div>
 				</div>
 				<div>
-					<label class="text-sm text-slate-300">Max steps</label>
+					<label class="text-sm text-slate-300" for="max-steps">Max steps</label>
 					<input
+						id="max-steps"
 						class="mt-1 w-full bg-slate-800 text-white border border-slate-700 rounded px-2 py-1 text-sm"
 						type="number"
 						min="1"
