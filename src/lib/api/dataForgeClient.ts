@@ -1,7 +1,10 @@
 import { backendConfig } from '../config/backend';
 import type { EvaluationHistoryItem, SASSection } from './types';
 
-const jsonHeaders = { 'Content-Type': 'application/json' };
+const jsonHeaders = () => ({
+	'Content-Type': 'application/json',
+	...(backendConfig.getAuthHeaders ? backendConfig.getAuthHeaders() : {})
+});
 
 export async function getSASSectionsByTags(tags: string[]): Promise<SASSection[]> {
 	const params = new URLSearchParams();
@@ -9,9 +12,7 @@ export async function getSASSectionsByTags(tags: string[]): Promise<SASSection[]
 
 	const res = await fetch(
 		`${backendConfig.dataForgeBaseUrl}/sas/sections?${params.toString()}`,
-		{
-			method: 'GET'
-		}
+		{ method: 'GET', headers: backendConfig.getAuthHeaders ? backendConfig.getAuthHeaders() : {} }
 	);
 
 	if (!res.ok) {
@@ -26,7 +27,7 @@ export async function getEvaluationHistory(entityId: string): Promise<Evaluation
 		`${backendConfig.dataForgeBaseUrl}/evals/history/${encodeURIComponent(entityId)}`,
 		{
 			method: 'GET',
-			headers: jsonHeaders
+			headers: jsonHeaders()
 		}
 	);
 

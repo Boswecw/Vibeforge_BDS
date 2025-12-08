@@ -1,7 +1,10 @@
 import { backendConfig } from '../config/backend';
 import type { AgentSessionRequest, AgentSessionResponse } from './types';
 
-const jsonHeaders = { 'Content-Type': 'application/json' };
+const jsonHeaders = () => ({
+	'Content-Type': 'application/json',
+	...(backendConfig.getAuthHeaders ? backendConfig.getAuthHeaders() : {})
+});
 
 async function postSession(
 	path: string,
@@ -9,7 +12,7 @@ async function postSession(
 ): Promise<AgentSessionResponse> {
 	const res = await fetch(`${backendConfig.forgeAgentsBaseUrl}${path}`, {
 		method: 'POST',
-		headers: jsonHeaders,
+		headers: jsonHeaders(),
 		body: JSON.stringify(payload)
 	});
 
