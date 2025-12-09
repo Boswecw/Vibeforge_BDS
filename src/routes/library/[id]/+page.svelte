@@ -4,6 +4,7 @@
 	import { skillRegistry } from '$lib/api/skillRegistry';
 	import { forgeAgentsClient } from '$lib/api/forgeAgentsClient';
 	import type { Skill, SkillInvocationResponse } from '$lib/api/types';
+	import { ErrorBoundary, ErrorDisplay } from '$lib/components';
 
 	let skill: Skill | null = $state(null);
 	let loading = $state(true);
@@ -101,6 +102,7 @@
 	}
 </script>
 
+<ErrorBoundary>
 <div class="skill-detail-container">
 	{#if loading}
 		<div class="loading-state">
@@ -108,8 +110,12 @@
 			<p>Loading skill...</p>
 		</div>
 	{:else if error && !skill}
-		<div class="error-state">
-			<p class="error-message">{error}</p>
+		<ErrorDisplay
+			{error}
+			title="Failed to Load Skill"
+			onRetry={() => window.location.reload()}
+		/>
+		<div style="text-align: center; margin-top: 1rem;">
 			<a href="/library" class="btn-back">Back to Library</a>
 		</div>
 	{:else if skill}
@@ -335,6 +341,7 @@
 		</div>
 	{/if}
 </div>
+</ErrorBoundary>
 
 <style>
 	.skill-detail-container {

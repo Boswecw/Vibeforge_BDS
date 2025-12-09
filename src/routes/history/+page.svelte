@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
+	import { ErrorBoundary } from '$lib/components';
 
 	interface HistoryEntry {
 		id: string;
@@ -147,6 +148,7 @@
 	const sections = $derived(Array.from(new Set(history.map((entry) => entry.section))).sort());
 </script>
 
+<ErrorBoundary>
 <div class="history-container">
 	<div class="history-header">
 		<div>
@@ -340,6 +342,7 @@
 		{/if}
 	{/if}
 </div>
+</ErrorBoundary>
 
 <style>
 	.history-container {

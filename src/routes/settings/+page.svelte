@@ -2,6 +2,7 @@
 	import { onMount } from 'svelte';
 	import { tokenManager } from '$lib/api/auth';
 	import { forgeAgentsClient } from '$lib/api/forgeAgentsClient';
+	import { ErrorBoundary } from '$lib/components';
 
 	let apiBaseUrl = 'http://localhost:3000';
 	let apiTimeout = 30000;
@@ -102,6 +103,7 @@
 	}
 </script>
 
+<ErrorBoundary>
 <div class="settings-container">
 	<div class="settings-header">
 		<h1>Settings</h1>
@@ -281,6 +283,7 @@
 		</ul>
 	</section>
 </div>
+</ErrorBoundary>
 
 <style>
 	.settings-container {

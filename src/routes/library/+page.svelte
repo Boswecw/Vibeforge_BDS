@@ -3,6 +3,7 @@
 	import { skillRegistry } from '$lib/api/skillRegistry';
 	import { forgeAgentsClient } from '$lib/api/forgeAgentsClient';
 	import type { Skill } from '$lib/api/types';
+	import { ErrorBoundary, ErrorDisplay } from '$lib/components';
 
 	let skills: Skill[] = $state([]);
 	let filteredSkills: Skill[] = $state([]);
@@ -108,7 +109,8 @@
 	}
 </script>
 
-<div class="library-container">
+<ErrorBoundary>
+	<div class="library-container">
 	<!-- Header -->
 	<div class="library-header">
 		<div class="header-top">
@@ -204,10 +206,12 @@
 				<p>Loading skills...</p>
 			</div>
 		{:else if error}
-			<div class="error-state">
-				<p class="error-message">{error}</p>
-				<button onclick={() => window.location.reload()} class="btn-retry">Retry</button>
-			</div>
+			<ErrorDisplay
+				{error}
+				title="Failed to Load Skills"
+				onRetry={() => window.location.reload()}
+				onDismiss={() => (error = null)}
+			/>
 		{:else if filteredSkills.length === 0}
 			<div class="empty-state">
 				<p>No skills found matching your filters.</p>
@@ -255,7 +259,8 @@
 			</div>
 		{/if}
 	</div>
-</div>
+	</div>
+</ErrorBoundary>
 
 <style>
 	.library-container {
