@@ -104,7 +104,6 @@ declare module '$env/static/private' {
 	export const HOSTTYPE: string;
 	export const WSLENV: string;
 	export const INIT_CWD: string;
-	export const NODE_ENV: string;
 }
 
 /**
@@ -212,7 +211,6 @@ declare module '$env/dynamic/private' {
 		HOSTTYPE: string;
 		WSLENV: string;
 		INIT_CWD: string;
-		NODE_ENV: string;
 		[key: `PUBLIC_${string}`]: undefined;
 		[key: `${string}`]: string | undefined;
 	}

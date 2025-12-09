@@ -1,6 +1,8 @@
 {
 	"/": [],
 	"/admin/agents": [],
+	"/history": [],
 	"/library": [],
-	"/library/[id]": []
+	"/library/[id]": [],
+	"/settings": []
 }
