@@ -164,8 +164,8 @@
 
 			<div class="controls-row">
 				<div class="sort-controls">
-					<label>Sort by:</label>
-					<select bind:value={sortBy} class="sort-select">
+					<label for="sort-select">Sort by:</label>
+					<select id="sort-select" bind:value={sortBy} class="sort-select">
 						<option value="name">Name</option>
 						<option value="section">Section</option>
 						<option value="category">Category</option>

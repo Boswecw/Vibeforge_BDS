@@ -1,7 +1,6 @@
 {
 	"/": [],
 	"/admin/agents": [],
-	"/coordinator": [],
-	"/planning": [],
-	"/workbench": []
+	"/library": [],
+	"/library/[id]": []
 }

@@ -27,22 +27,21 @@ export {};
 
 declare module "$app/types" {
 	export interface AppTypes {
-		RouteId(): "/(billing)" | "/(auth)" | "/(admin)" | "/" | "/admin" | "/admin/agents" | "/coordinator" | "/planning" | "/workbench";
+		RouteId(): "/(billing)" | "/(auth)" | "/(admin)" | "/" | "/admin" | "/admin/agents" | "/library" | "/library/[id]";
 		RouteParams(): {
-			
+			"/library/[id]": { id: string }
 		};
 		LayoutParams(): {
 			"/(billing)": Record<string, never>;
 			"/(auth)": Record<string, never>;
 			"/(admin)": Record<string, never>;
-			"/": Record<string, never>;
+			"/": { id?: string };
 			"/admin": Record<string, never>;
 			"/admin/agents": Record<string, never>;
-			"/coordinator": Record<string, never>;
-			"/planning": Record<string, never>;
-			"/workbench": Record<string, never>
+			"/library": { id?: string };
+			"/library/[id]": { id: string }
 		};
-		Pathname(): "/" | "/admin" | "/admin/" | "/admin/agents" | "/admin/agents/" | "/coordinator" | "/coordinator/" | "/planning" | "/planning/" | "/workbench" | "/workbench/";
+		Pathname(): "/" | "/admin" | "/admin/" | "/admin/agents" | "/admin/agents/" | "/library" | "/library/" | `/library/${string}` & {} | `/library/${string}/` & {};
 		ResolvedPathname(): `${"" | `/${string}`}${ReturnType<AppTypes['Pathname']>}`;
 		Asset(): string & {};
 	}

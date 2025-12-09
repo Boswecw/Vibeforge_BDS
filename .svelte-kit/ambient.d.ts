@@ -28,21 +28,26 @@
 declare module '$env/static/private' {
 	export const VSCODE_CWD: string;
 	export const VSCODE_ESM_ENTRYPOINT: string;
+	export const VITE_NEUROFORGE_API_BASE: string;
 	export const USER: string;
-	export const CODEX_INTERNAL_ORIGINATOR_OVERRIDE: string;
+	export const CLAUDE_CODE_ENTRYPOINT: string;
 	export const VSCODE_NLS_CONFIG: string;
 	export const npm_config_user_agent: string;
+	export const GIT_EDITOR: string;
 	export const VSCODE_WSL_EXT_LOCATION: string;
 	export const VSCODE_HANDLES_UNCAUGHT_ERRORS: string;
 	export const BUN_INSTALL: string;
 	export const npm_node_execpath: string;
+	export const VITE_ENABLE_RUN_HISTORY: string;
+	export const CLAUDE_AGENT_SDK_VERSION: string;
 	export const SHLVL: string;
 	export const HOME: string;
-	export const OLDPWD: string;
+	export const VITE_DATAFORGE_API_BASE: string;
 	export const NVM_BIN: string;
 	export const VSCODE_IPC_HOOK_CLI: string;
 	export const npm_package_json: string;
 	export const NVM_INC: string;
+	export const VITE_VIBEFORGE_API_KEY: string;
 	export const COREPACK_ROOT: string;
 	export const DBUS_SESSION_BUS_ADDRESS: string;
 	export const WSL_DISTRO_NAME: string;
@@ -51,6 +56,7 @@ declare module '$env/static/private' {
 	export const VSCODE_L10N_BUNDLE_LOCATION: string;
 	export const APPLICATION_INSIGHTS_NO_STATSBEAT: string;
 	export const COREPACK_ENABLE_DOWNLOAD_PROMPT: string;
+	export const VITE_LOG_API_CALLS: string;
 	export const LOGNAME: string;
 	export const pnpm_config_verify_deps_before_run: string;
 	export const NAME: string;
@@ -58,18 +64,21 @@ declare module '$env/static/private' {
 	export const VSCODE_HANDLES_SIGPIPE: string;
 	export const PULSE_SERVER: string;
 	export const _: string;
-	export const RUST_LOG: string;
 	export const npm_config_registry: string;
+	export const VITE_ENABLE_MODEL_COMPARISON: string;
 	export const TERM: string;
+	export const OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE: string;
 	export const HISTCONTROL: string;
 	export const npm_config_node_gyp: string;
 	export const PATH: string;
 	export const npm_package_name: string;
 	export const NODE: string;
+	export const COREPACK_ENABLE_AUTO_PIN: string;
+	export const VITE_PUBLIC_API_BASE_URL: string;
 	export const XDG_RUNTIME_DIR: string;
 	export const npm_config_frozen_lockfile: string;
 	export const DISPLAY: string;
-	export const CODEX_SANDBOX_NETWORK_DISABLED: string;
+	export const NoDefaultCurrentDirectoryInExePath: string;
 	export const LANG: string;
 	export const npm_lifecycle_script: string;
 	export const SHELL: string;
@@ -79,7 +88,10 @@ declare module '$env/static/private' {
 	export const npm_config_verify_deps_before_run: string;
 	export const NODE_PATH: string;
 	export const ELECTRON_RUN_AS_NODE: string;
+	export const VITE_ENABLE_CONTEXT_SEARCH: string;
 	export const npm_config_npm_globalconfig: string;
+	export const CLAUDECODE: string;
+	export const VITE_DEBUG_INTEGRATION: string;
 	export const npm_config_globalconfig: string;
 	export const PWD: string;
 	export const npm_execpath: string;
@@ -92,6 +104,7 @@ declare module '$env/static/private' {
 	export const HOSTTYPE: string;
 	export const WSLENV: string;
 	export const INIT_CWD: string;
+	export const NODE_ENV: string;
 }
 
 /**
@@ -123,21 +136,26 @@ declare module '$env/dynamic/private' {
 	export const env: {
 		VSCODE_CWD: string;
 		VSCODE_ESM_ENTRYPOINT: string;
+		VITE_NEUROFORGE_API_BASE: string;
 		USER: string;
-		CODEX_INTERNAL_ORIGINATOR_OVERRIDE: string;
+		CLAUDE_CODE_ENTRYPOINT: string;
 		VSCODE_NLS_CONFIG: string;
 		npm_config_user_agent: string;
+		GIT_EDITOR: string;
 		VSCODE_WSL_EXT_LOCATION: string;
 		VSCODE_HANDLES_UNCAUGHT_ERRORS: string;
 		BUN_INSTALL: string;
 		npm_node_execpath: string;
+		VITE_ENABLE_RUN_HISTORY: string;
+		CLAUDE_AGENT_SDK_VERSION: string;
 		SHLVL: string;
 		HOME: string;
-		OLDPWD: string;
+		VITE_DATAFORGE_API_BASE: string;
 		NVM_BIN: string;
 		VSCODE_IPC_HOOK_CLI: string;
 		npm_package_json: string;
 		NVM_INC: string;
+		VITE_VIBEFORGE_API_KEY: string;
 		COREPACK_ROOT: string;
 		DBUS_SESSION_BUS_ADDRESS: string;
 		WSL_DISTRO_NAME: string;
@@ -146,6 +164,7 @@ declare module '$env/dynamic/private' {
 		VSCODE_L10N_BUNDLE_LOCATION: string;
 		APPLICATION_INSIGHTS_NO_STATSBEAT: string;
 		COREPACK_ENABLE_DOWNLOAD_PROMPT: string;
+		VITE_LOG_API_CALLS: string;
 		LOGNAME: string;
 		pnpm_config_verify_deps_before_run: string;
 		NAME: string;
@@ -153,18 +172,21 @@ declare module '$env/dynamic/private' {
 		VSCODE_HANDLES_SIGPIPE: string;
 		PULSE_SERVER: string;
 		_: string;
-		RUST_LOG: string;
 		npm_config_registry: string;
+		VITE_ENABLE_MODEL_COMPARISON: string;
 		TERM: string;
+		OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE: string;
 		HISTCONTROL: string;
 		npm_config_node_gyp: string;
 		PATH: string;
 		npm_package_name: string;
 		NODE: string;
+		COREPACK_ENABLE_AUTO_PIN: string;
+		VITE_PUBLIC_API_BASE_URL: string;
 		XDG_RUNTIME_DIR: string;
 		npm_config_frozen_lockfile: string;
 		DISPLAY: string;
-		CODEX_SANDBOX_NETWORK_DISABLED: string;
+		NoDefaultCurrentDirectoryInExePath: string;
 		LANG: string;
 		npm_lifecycle_script: string;
 		SHELL: string;
@@ -174,7 +196,10 @@ declare module '$env/dynamic/private' {
 		npm_config_verify_deps_before_run: string;
 		NODE_PATH: string;
 		ELECTRON_RUN_AS_NODE: string;
+		VITE_ENABLE_CONTEXT_SEARCH: string;
 		npm_config_npm_globalconfig: string;
+		CLAUDECODE: string;
+		VITE_DEBUG_INTEGRATION: string;
 		npm_config_globalconfig: string;
 		PWD: string;
 		npm_execpath: string;
@@ -187,6 +212,7 @@ declare module '$env/dynamic/private' {
 		HOSTTYPE: string;
 		WSLENV: string;
 		INIT_CWD: string;
+		NODE_ENV: string;
 		[key: `PUBLIC_${string}`]: undefined;
 		[key: `${string}`]: string | undefined;
 	}

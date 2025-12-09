@@ -129,19 +129,19 @@
 			<!-- Metadata -->
 			<div class="skill-metadata">
 				<div class="meta-group">
-					<label>Skill ID:</label>
+					<span class="meta-label">Skill ID:</span>
 					<span class="meta-value">{skill.id}</span>
 				</div>
 				<div class="meta-group">
-					<label>Section:</label>
+					<span class="meta-label">Section:</span>
 					<span class="meta-value">{skill.section}</span>
 				</div>
 				<div class="meta-group">
-					<label>Category:</label>
+					<span class="meta-label">Category:</span>
 					<span class="meta-value">{skill.category}</span>
 				</div>
 				<div class="meta-group">
-					<label>Est. Cost:</label>
+					<span class="meta-label">Est. Cost:</span>
 					<span class="meta-value cost"
 						>${skill.estimatedCost.min.toFixed(3)} - ${skill.estimatedCost.max.toFixed(3)}</span
 					>
@@ -151,7 +151,7 @@
 			<!-- Tags -->
 			{#if skill.tags.length > 0}
 				<div class="skill-tags">
-					<label>Tags:</label>
+					<span class="tags-label">Tags:</span>
 					<div class="tags-list">
 						{#each skill.tags as tag}
 							<span class="tag">{tag}</span>
@@ -465,7 +465,7 @@
 		gap: 0.25rem;
 	}
 
-	.meta-group label {
+	.meta-label {
 		font-size: 0.75rem;
 		color: var(--text-tertiary, #6b7280);
 		text-transform: uppercase;
@@ -486,7 +486,7 @@
 		margin-bottom: 1.5rem;
 	}
 
-	.skill-tags label {
+	.tags-label {
 		display: block;
 		font-size: 0.75rem;
 		color: var(--text-tertiary, #6b7280);
