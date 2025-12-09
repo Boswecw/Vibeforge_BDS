@@ -1,4 +1,4 @@
-import { U as ensure_array_like, V as attr_class, W as attr, X as store_get, Y as slot, Z as unsubscribe_stores } from "../../chunks/index2.js";
+import { X as ensure_array_like, Y as attr_class, Z as attr, _ as store_get, $ as slot, a0 as unsubscribe_stores } from "../../chunks/index2.js";
 import { p as page } from "../../chunks/stores.js";
 import { e as escape_html } from "../../chunks/escaping.js";
 function _layout($$renderer, $$props) {

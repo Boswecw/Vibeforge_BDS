@@ -1,8 +1,20 @@
 {
 	"/": [],
+	"/admin": [],
 	"/admin/agents": [],
+	"/agents": [],
+	"/analytics": [],
+	"/architecture": [],
+	"/coordinator": [],
+	"/evaluator": [],
+	"/execution": [],
 	"/history": [],
 	"/library": [],
 	"/library/[id]": [],
-	"/settings": []
+	"/models": [],
+	"/planning": [],
+	"/settings": [],
+	"/test-api": [],
+	"/testing": [],
+	"/workflows": []
 }

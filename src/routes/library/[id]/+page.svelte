@@ -4,7 +4,7 @@
 	import { skillRegistry } from '$lib/api/skillRegistry';
 	import { forgeAgentsClient } from '$lib/api/forgeAgentsClient';
 	import type { Skill, SkillInvocationResponse } from '$lib/api/types';
-	import { ErrorBoundary, ErrorDisplay } from '$lib/components';
+	import { Button, Input, Select, Textarea, Badge, Alert, Panel } from '$lib/components';
 
 	let skill: Skill | null = $state(null);
 	let loading = $state(true);
@@ -102,7 +102,6 @@
 	}
 </script>
 
-<ErrorBoundary>
 <div class="skill-detail-container">
 	{#if loading}
 		<div class="loading-state">
@@ -110,57 +109,63 @@
 			<p>Loading skill...</p>
 		</div>
 	{:else if error && !skill}
-		<ErrorDisplay
+		<Alert variant="error" title="Failed to Load Skill">
 			{error}
-			title="Failed to Load Skill"
-			onRetry={() => window.location.reload()}
-		/>
+		</Alert>
 		<div style="text-align: center; margin-top: 1rem;">
-			<a href="/library" class="btn-back">Back to Library</a>
+			<Button variant="secondary" on:click={() => (window.location.href = '/library')}>
+				← Back to Library
+			</Button>
 		</div>
 	{:else if skill}
 		<div class="skill-detail">
 			<!-- Header -->
 			<div class="detail-header">
-				<a href="/library" class="back-link">← Back to Library</a>
+				<Button variant="ghost" size="sm" on:click={() => (window.location.href = '/library')}>
+					← Back to Library
+				</Button>
 				<div class="header-content">
 					<div class="header-main">
 						<h1>{skill.name}</h1>
-						<span class="skill-access {skill.access.toLowerCase()}">{skill.access}</span>
+						<Badge variant={skill.access === 'PUBLIC' ? 'success' : 'warning'} size="lg">
+							{skill.access}
+						</Badge>
 					</div>
 					<p class="skill-description">{skill.description}</p>
 				</div>
 			</div>
 
 			<!-- Metadata -->
-			<div class="skill-metadata">
-				<div class="meta-group">
-					<span class="meta-label">Skill ID:</span>
-					<span class="meta-value">{skill.id}</span>
+			<Panel variant="bordered" padding="lg">
+				<div class="skill-metadata">
+					<div class="meta-group">
+						<span class="meta-label">Skill ID</span>
+						<Badge variant="default" size="sm">{skill.id}</Badge>
+					</div>
+					<div class="meta-group">
+						<span class="meta-label">Section</span>
+						<Badge variant="info" size="sm">{skill.section}</Badge>
+					</div>
+					<div class="meta-group">
+						<span class="meta-label">Category</span>
+						<Badge variant="info" size="sm">{skill.category}</Badge>
+					</div>
+					<div class="meta-group">
+						<span class="meta-label">Est. Cost</span>
+						<Badge variant="accent" size="sm">
+							${skill.estimatedCost.min.toFixed(3)} - ${skill.estimatedCost.max.toFixed(3)}
+						</Badge>
+					</div>
 				</div>
-				<div class="meta-group">
-					<span class="meta-label">Section:</span>
-					<span class="meta-value">{skill.section}</span>
-				</div>
-				<div class="meta-group">
-					<span class="meta-label">Category:</span>
-					<span class="meta-value">{skill.category}</span>
-				</div>
-				<div class="meta-group">
-					<span class="meta-label">Est. Cost:</span>
-					<span class="meta-value cost"
-						>${skill.estimatedCost.min.toFixed(3)} - ${skill.estimatedCost.max.toFixed(3)}</span
-					>
-				</div>
-			</div>
+			</Panel>
 
 			<!-- Tags -->
 			{#if skill.tags.length > 0}
 				<div class="skill-tags">
-					<span class="tags-label">Tags:</span>
+					<span class="tags-label">Tags</span>
 					<div class="tags-list">
 						{#each skill.tags as tag}
-							<span class="tag">{tag}</span>
+							<Badge variant="default" size="sm" outline>{tag}</Badge>
 						{/each}
 					</div>
 				</div>
@@ -169,7 +174,7 @@
 			<!-- Main Content -->
 			<div class="content-grid">
 				<!-- Inputs Panel -->
-				<div class="inputs-panel">
+				<Panel variant="bordered" padding="lg">
 					<h2>Inputs</h2>
 
 					{#if Object.keys(skill.inputs).length === 0}
@@ -177,30 +182,53 @@
 					{:else}
 						<div class="inputs-form">
 							{#each Object.entries(skill.inputs) as [key, input]}
-								<div class="input-group">
-									<label for={key}>
-										{key}
-										{#if input.required}
-											<span class="required">*</span>
+								{#if input.type === 'string'}
+									<Input
+										label={key}
+										bind:value={inputs[key]}
+										helperText={input.description || ''}
+										required={input.required}
+										fullWidth
+									/>
+								{:else if input.type === 'number'}
+									<Input
+										type="number"
+										label={key}
+										bind:value={inputs[key]}
+										helperText={input.description || ''}
+										required={input.required}
+										fullWidth
+									/>
+								{:else if input.type === 'boolean'}
+									<div class="checkbox-group">
+										<label>
+											<input type="checkbox" bind:checked={inputs[key]} />
+											{key}
+											{#if input.required}<span class="required">*</span>{/if}
+										</label>
+										{#if input.description}
+											<p class="input-description">{input.description}</p>
 										{/if}
-									</label>
-									{#if input.description}
-										<p class="input-description">{input.description}</p>
-									{/if}
-
-									{#if input.type === 'string'}
-										<input type="text" id={key} bind:value={inputs[key]} class="input-field" />
-									{:else if input.type === 'number'}
-										<input type="number" id={key} bind:value={inputs[key]} class="input-field" />
-									{:else if input.type === 'boolean'}
-										<input type="checkbox" id={key} bind:checked={inputs[key]} class="input-checkbox" />
-									{:else if input.type === 'array'}
-										<textarea id={key} bind:value={inputs[key]} class="input-textarea" rows="3"></textarea>
-										<p class="input-hint">Enter comma-separated values</p>
-									{:else}
-										<textarea id={key} bind:value={inputs[key]} class="input-textarea" rows="5"></textarea>
-									{/if}
-								</div>
+									</div>
+								{:else if input.type === 'array'}
+									<Textarea
+										label={key}
+										bind:value={inputs[key]}
+										helperText={input.description || 'Enter comma-separated values'}
+										required={input.required}
+										rows={3}
+										fullWidth
+									/>
+								{:else}
+									<Textarea
+										label={key}
+										bind:value={inputs[key]}
+										helperText={input.description || ''}
+										required={input.required}
+										rows={5}
+										fullWidth
+									/>
+								{/if}
 							{/each}
 						</div>
 					{/if}
@@ -216,14 +244,16 @@
 							</label>
 						</div>
 
-						<div class="option-group">
-							<label for="model">Model:</label>
-							<select id="model" bind:value={selectedModel} class="option-select">
-								<option value="claude-3.5-sonnet">Claude 3.5 Sonnet</option>
-								<option value="gpt-4-turbo">GPT-4 Turbo</option>
-								<option value="gpt-4">GPT-4</option>
-							</select>
-						</div>
+						<Select
+							label="Model"
+							bind:value={selectedModel}
+							options={[
+								{ value: 'claude-3.5-sonnet', label: 'Claude 3.5 Sonnet' },
+								{ value: 'gpt-4-turbo', label: 'GPT-4 Turbo' },
+								{ value: 'gpt-4', label: 'GPT-4' }
+							]}
+							fullWidth
+						/>
 
 						<div class="option-group">
 							<label for="temperature">Temperature: {temperature}</label>
@@ -253,36 +283,32 @@
 					</div>
 
 					<!-- Invoke Button -->
-					<button onclick={invokeSkill} disabled={invoking} class="btn-invoke">
-						{#if invoking}
-							<span class="btn-spinner"></span>
-							Invoking...
-						{:else}
-							Invoke Skill
-						{/if}
-					</button>
-				</div>
+					<Button variant="primary" size="lg" fullWidth loading={invoking} on:click={invokeSkill}>
+						Invoke Skill
+					</Button>
+				</Panel>
 
 				<!-- Output Panel -->
-				<div class="output-panel">
+				<Panel variant="bordered" padding="lg">
 					<div class="output-header">
 						<h2>Output</h2>
 						{#if invocationResult || streamingOutput}
-							<button onclick={resetInvocation} class="btn-clear-output">Clear</button>
+							<Button variant="ghost" size="sm" on:click={resetInvocation}>Clear</Button>
 						{/if}
 					</div>
 
 					{#if error}
-						<div class="output-error">
-							<h3>Error</h3>
-							<p>{error}</p>
-						</div>
+						<Alert variant="error" title="Error">
+							{error}
+						</Alert>
 					{:else if invoking}
 						<div class="output-loading">
 							{#if isStreaming}
 								<div class="streaming-output">
 									<pre>{streamingOutput}</pre>
-									<div class="streaming-indicator">Streaming...</div>
+									<div class="streaming-indicator">
+										<Badge variant="accent" dot>Streaming...</Badge>
+									</div>
 								</div>
 							{:else}
 								<div class="spinner"></div>
@@ -299,24 +325,24 @@
 						<div class="output-success">
 							<div class="output-metadata">
 								<div class="meta-item">
-									<span class="meta-label">Session ID:</span>
-									<span class="meta-value">{invocationResult.sessionId}</span>
+									<span class="meta-label">Session ID</span>
+									<Badge variant="default" size="sm">{invocationResult.sessionId}</Badge>
 								</div>
 								<div class="meta-item">
-									<span class="meta-label">Model:</span>
-									<span class="meta-value">{invocationResult.metadata.model_used}</span>
+									<span class="meta-label">Model</span>
+									<Badge variant="info" size="sm">{invocationResult.metadata.model_used}</Badge>
 								</div>
 								<div class="meta-item">
-									<span class="meta-label">Tokens:</span>
-									<span class="meta-value">{invocationResult.metadata.tokens_used}</span>
+									<span class="meta-label">Tokens</span>
+									<Badge variant="default" size="sm">{invocationResult.metadata.tokens_used}</Badge>
 								</div>
 								<div class="meta-item">
-									<span class="meta-label">Cost:</span>
-									<span class="meta-value">${invocationResult.metadata.cost.toFixed(4)}</span>
+									<span class="meta-label">Cost</span>
+									<Badge variant="accent" size="sm">${invocationResult.metadata.cost.toFixed(4)}</Badge>
 								</div>
 								<div class="meta-item">
-									<span class="meta-label">Latency:</span>
-									<span class="meta-value">{invocationResult.metadata.latency_ms}ms</span>
+									<span class="meta-label">Latency</span>
+									<Badge variant="default" size="sm">{invocationResult.metadata.latency_ms}ms</Badge>
 								</div>
 							</div>
 
@@ -325,10 +351,9 @@
 									<pre>{invocationResult.output}</pre>
 								</div>
 							{:else}
-								<div class="output-error">
-									<h3>Execution Error</h3>
-									<p>{invocationResult.error}</p>
-								</div>
+								<Alert variant="error" title="Execution Error">
+									{invocationResult.error}
+								</Alert>
 							{/if}
 						</div>
 					{:else}
@@ -336,49 +361,42 @@
 							<p>No output yet. Configure inputs and click "Invoke Skill" to run.</p>
 						</div>
 					{/if}
-				</div>
+				</Panel>
 			</div>
 		</div>
 	{/if}
 </div>
-</ErrorBoundary>
 
 <style>
+	/* ═══════════════════════════════════════════════════════════════════════
+     Skill Detail Container
+     ═══════════════════════════════════════════════════════════════════════ */
+
 	.skill-detail-container {
-		height: 100vh;
-		padding: 1.5rem;
-		background: var(--bg-primary, #0a0a0a);
-		color: var(--text-primary, #e0e0e0);
-		overflow-y: auto;
+		max-width: 1400px;
+		margin: 0 auto;
+		display: flex;
+		flex-direction: column;
+		gap: var(--spacing-xl);
 	}
 
-	.loading-state,
-	.error-state {
+	.loading-state {
 		display: flex;
 		flex-direction: column;
 		align-items: center;
 		justify-content: center;
-		gap: 1rem;
-		padding: 4rem 2rem;
+		gap: var(--spacing-lg);
+		padding: var(--spacing-3xl) var(--spacing-xl);
 		text-align: center;
 	}
 
-	.spinner,
-	.btn-spinner {
-		width: 40px;
-		height: 40px;
-		border: 3px solid var(--border, #333);
-		border-top-color: var(--accent, #fb923c);
+	.spinner {
+		width: 48px;
+		height: 48px;
+		border: 4px solid var(--color-border-subtle);
+		border-top-color: var(--color-brass);
 		border-radius: 50%;
-		animation: spin 1s linear infinite;
-	}
-
-	.btn-spinner {
-		width: 16px;
-		height: 16px;
-		border-width: 2px;
-		display: inline-block;
-		margin-right: 0.5rem;
+		animation: spin 0.8s linear infinite;
 	}
 
 	@keyframes spin {
@@ -387,295 +405,223 @@
 		}
 	}
 
-	.error-message {
-		color: #ef4444;
-	}
-
-	.back-link,
-	.btn-back {
-		display: inline-block;
-		padding: 0.5rem 1rem;
-		background: var(--bg-secondary, #1a1a1a);
-		border: 1px solid var(--border, #333);
-		border-radius: 4px;
-		color: var(--text-primary, #e0e0e0);
-		text-decoration: none;
-		font-size: 0.875rem;
-		transition: all 0.2s;
-	}
-
-	.back-link:hover,
-	.btn-back:hover {
-		border-color: var(--accent, #fb923c);
-	}
+	/* ─────────────────────────────────────────────────────────────────────
+     Header Section
+     ───────────────────────────────────────────────────────────────────── */
 
 	.detail-header {
-		margin-bottom: 1.5rem;
+		display: flex;
+		flex-direction: column;
+		gap: var(--spacing-md);
 	}
 
 	.header-content {
-		margin-top: 1rem;
+		display: flex;
+		flex-direction: column;
+		gap: var(--spacing-sm);
 	}
 
 	.header-main {
 		display: flex;
 		align-items: center;
-		gap: 1rem;
-		margin-bottom: 0.75rem;
+		gap: var(--spacing-md);
+		flex-wrap: wrap;
 	}
 
 	h1 {
-		font-size: 2rem;
-		font-weight: 700;
+		font-family: var(--font-family-heading);
+		font-size: 2.5rem;
+		font-weight: 300;
+		color: var(--color-text-primary);
 		margin: 0;
-		color: var(--accent, #fb923c);
-	}
-
-	.skill-access {
-		padding: 0.375rem 0.75rem;
-		font-size: 0.875rem;
-		font-weight: 600;
-		border-radius: 4px;
-	}
-
-	.skill-access.public {
-		background: rgba(34, 197, 94, 0.2);
-		color: #22c55e;
-	}
-
-	.skill-access.bds_only {
-		background: rgba(245, 158, 11, 0.2);
-		color: #f59e0b;
+		letter-spacing: 0.02em;
 	}
 
 	.skill-description {
-		font-size: 1rem;
-		color: var(--text-secondary, #9ca3af);
+		font-size: 1.125rem;
+		color: var(--color-text-secondary);
 		line-height: 1.6;
 		margin: 0;
 	}
 
+	/* ─────────────────────────────────────────────────────────────────────
+     Metadata & Tags
+     ───────────────────────────────────────────────────────────────────── */
+
 	.skill-metadata {
 		display: grid;
 		grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-		gap: 1rem;
-		padding: 1rem;
-		background: var(--bg-secondary, #1a1a1a);
-		border: 1px solid var(--border, #333);
-		border-radius: 8px;
-		margin-bottom: 1.5rem;
+		gap: var(--spacing-lg);
 	}
 
 	.meta-group {
 		display: flex;
 		flex-direction: column;
-		gap: 0.25rem;
+		gap: var(--spacing-xs);
 	}
 
 	.meta-label {
 		font-size: 0.75rem;
-		color: var(--text-tertiary, #6b7280);
+		color: var(--color-text-tertiary);
 		text-transform: uppercase;
 		letter-spacing: 0.05em;
-	}
-
-	.meta-value {
-		font-size: 0.875rem;
-		color: var(--text-primary, #e0e0e0);
-	}
-
-	.meta-value.cost {
-		color: var(--accent, #fb923c);
-		font-weight: 600;
 	}
 
 	.skill-tags {
-		margin-bottom: 1.5rem;
+		display: flex;
+		flex-direction: column;
+		gap: var(--spacing-sm);
 	}
 
 	.tags-label {
-		display: block;
 		font-size: 0.75rem;
-		color: var(--text-tertiary, #6b7280);
+		color: var(--color-text-tertiary);
 		text-transform: uppercase;
 		letter-spacing: 0.05em;
-		margin-bottom: 0.5rem;
 	}
 
 	.tags-list {
 		display: flex;
-		gap: 0.5rem;
+		gap: var(--spacing-sm);
 		flex-wrap: wrap;
 	}
 
-	.tag {
-		padding: 0.375rem 0.75rem;
-		background: var(--bg-secondary, #1a1a1a);
-		border: 1px solid var(--border, #333);
-		border-radius: 4px;
-		font-size: 0.875rem;
-		color: var(--text-secondary, #9ca3af);
-	}
+	/* ─────────────────────────────────────────────────────────────────────
+     Content Grid
+     ───────────────────────────────────────────────────────────────────── */
 
 	.content-grid {
 		display: grid;
 		grid-template-columns: 1fr 1fr;
-		gap: 1.5rem;
-	}
-
-	.inputs-panel,
-	.output-panel {
-		background: var(--bg-secondary, #1a1a1a);
-		border: 1px solid var(--border, #333);
-		border-radius: 8px;
-		padding: 1.5rem;
+		gap: var(--spacing-xl);
 	}
 
 	h2 {
+		font-family: var(--font-family-heading);
 		font-size: 1.5rem;
-		font-weight: 600;
-		margin: 0 0 1rem 0;
-		color: var(--text-primary, #e0e0e0);
+		font-weight: 300;
+		color: var(--color-text-primary);
+		margin: 0 0 var(--spacing-lg) 0;
+		letter-spacing: 0.02em;
 	}
 
 	h3 {
+		font-family: var(--font-family-heading);
 		font-size: 1.125rem;
-		font-weight: 600;
-		margin: 0 0 0.75rem 0;
-		color: var(--text-primary, #e0e0e0);
+		font-weight: 300;
+		color: var(--color-text-primary);
+		margin: 0 0 var(--spacing-md) 0;
+		letter-spacing: 0.02em;
 	}
 
+	/* ─────────────────────────────────────────────────────────────────────
+     Inputs Panel
+     ───────────────────────────────────────────────────────────────────── */
+
 	.no-inputs {
-		color: var(--text-secondary, #9ca3af);
+		color: var(--color-text-secondary);
 		font-style: italic;
 	}
 
 	.inputs-form {
 		display: flex;
 		flex-direction: column;
-		gap: 1rem;
-		margin-bottom: 1.5rem;
+		gap: var(--spacing-lg);
+		margin-bottom: var(--spacing-xl);
 	}
 
-	.input-group {
+	.checkbox-group {
 		display: flex;
 		flex-direction: column;
-		gap: 0.375rem;
+		gap: var(--spacing-xs);
 	}
 
-	.input-group label {
+	.checkbox-group label {
+		display: flex;
+		align-items: center;
+		gap: var(--spacing-sm);
 		font-size: 0.875rem;
-		font-weight: 500;
-		color: var(--text-primary, #e0e0e0);
+		color: var(--color-text-primary);
+		cursor: pointer;
+	}
+
+	.checkbox-group input[type='checkbox'] {
+		width: 20px;
+		height: 20px;
+		cursor: pointer;
 	}
 
 	.required {
-		color: #ef4444;
+		color: var(--color-error);
 	}
 
 	.input-description {
 		font-size: 0.75rem;
-		color: var(--text-secondary, #9ca3af);
+		color: var(--color-text-secondary);
 		margin: 0;
 	}
 
-	.input-field,
-	.input-textarea {
-		padding: 0.5rem 0.75rem;
-		background: var(--bg-tertiary, #0a0a0a);
-		border: 1px solid var(--border, #333);
-		border-radius: 4px;
-		color: var(--text-primary, #e0e0e0);
-		font-size: 0.875rem;
-		font-family: inherit;
-	}
-
-	.input-textarea {
-		resize: vertical;
-		font-family: 'Courier New', monospace;
-	}
-
-	.input-checkbox {
-		width: 20px;
-		height: 20px;
-	}
-
-	.input-hint {
-		font-size: 0.75rem;
-		color: var(--text-tertiary, #6b7280);
-		margin: 0;
-	}
+	/* ─────────────────────────────────────────────────────────────────────
+     Options Panel
+     ───────────────────────────────────────────────────────────────────── */
 
 	.options-panel {
-		padding: 1rem;
-		background: var(--bg-tertiary, #0a0a0a);
-		border: 1px solid var(--border, #333);
-		border-radius: 4px;
-		margin-bottom: 1rem;
+		display: flex;
+		flex-direction: column;
+		gap: var(--spacing-md);
+		padding: var(--spacing-lg);
+		background-color: var(--color-surface-3);
+		border-radius: var(--radius-md);
+		margin-bottom: var(--spacing-lg);
 	}
 
 	.option-group {
-		margin-bottom: 0.75rem;
+		display: flex;
+		flex-direction: column;
+		gap: var(--spacing-sm);
 	}
 
 	.option-group label {
-		display: block;
 		font-size: 0.875rem;
-		color: var(--text-secondary, #9ca3af);
-		margin-bottom: 0.375rem;
+		color: var(--color-text-secondary);
 	}
 
-	.option-select,
 	.option-slider {
 		width: 100%;
-		padding: 0.375rem 0.5rem;
-		background: var(--bg-primary, #0a0a0a);
-		border: 1px solid var(--border, #333);
-		border-radius: 4px;
-		color: var(--text-primary, #e0e0e0);
-		font-size: 0.875rem;
-	}
-
-	.btn-invoke {
-		width: 100%;
-		padding: 0.75rem 1rem;
-		background: var(--accent, #fb923c);
-		border: none;
-		border-radius: 4px;
-		color: #0a0a0a;
-		font-size: 1rem;
-		font-weight: 600;
+		height: 6px;
+		background: var(--color-surface-2);
+		border-radius: var(--radius-sm);
+		outline: none;
 		cursor: pointer;
-		transition: all 0.2s;
-		display: flex;
-		align-items: center;
-		justify-content: center;
 	}
 
-	.btn-invoke:hover:not(:disabled) {
-		background: #f97316;
+	.option-slider::-webkit-slider-thumb {
+		appearance: none;
+		width: 18px;
+		height: 18px;
+		background: var(--color-brass);
+		border-radius: 50%;
+		cursor: pointer;
 	}
 
-	.btn-invoke:disabled {
-		opacity: 0.6;
-		cursor: not-allowed;
+	.option-slider::-moz-range-thumb {
+		width: 18px;
+		height: 18px;
+		background: var(--color-brass);
+		border-radius: 50%;
+		cursor: pointer;
+		border: none;
 	}
+
+	/* ─────────────────────────────────────────────────────────────────────
+     Output Panel
+     ───────────────────────────────────────────────────────────────────── */
 
 	.output-header {
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
-		margin-bottom: 1rem;
-	}
-
-	.btn-clear-output {
-		padding: 0.375rem 0.75rem;
-		background: var(--bg-tertiary, #0a0a0a);
-		border: 1px solid var(--border, #333);
-		border-radius: 4px;
-		color: var(--text-primary, #e0e0e0);
-		font-size: 0.875rem;
-		cursor: pointer;
+		margin-bottom: var(--spacing-lg);
 	}
 
 	.output-empty,
@@ -684,44 +630,37 @@
 		flex-direction: column;
 		align-items: center;
 		justify-content: center;
-		gap: 1rem;
-		padding: 3rem 1rem;
-		color: var(--text-secondary, #9ca3af);
+		gap: var(--spacing-lg);
+		padding: var(--spacing-3xl) var(--spacing-xl);
+		color: var(--color-text-secondary);
 		text-align: center;
 	}
 
 	.output-success {
 		display: flex;
 		flex-direction: column;
-		gap: 1rem;
+		gap: var(--spacing-lg);
 	}
 
 	.output-metadata {
 		display: grid;
 		grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-		gap: 0.75rem;
-		padding: 0.75rem;
-		background: var(--bg-tertiary, #0a0a0a);
-		border: 1px solid var(--border, #333);
-		border-radius: 4px;
+		gap: var(--spacing-md);
+		padding: var(--spacing-md);
+		background-color: var(--color-surface-3);
+		border-radius: var(--radius-md);
 	}
 
 	.meta-item {
 		display: flex;
 		flex-direction: column;
-		gap: 0.25rem;
-	}
-
-	.meta-label {
-		font-size: 0.75rem;
-		color: var(--text-tertiary, #6b7280);
+		gap: var(--spacing-xs);
 	}
 
 	.output-content {
-		padding: 1rem;
-		background: var(--bg-tertiary, #0a0a0a);
-		border: 1px solid var(--border, #333);
-		border-radius: 4px;
+		padding: var(--spacing-lg);
+		background-color: var(--color-surface-3);
+		border-radius: var(--radius-md);
 		max-height: 600px;
 		overflow-y: auto;
 	}
@@ -730,27 +669,10 @@
 		margin: 0;
 		white-space: pre-wrap;
 		word-wrap: break-word;
-		font-family: 'Courier New', monospace;
+		font-family: var(--font-family-mono);
 		font-size: 0.875rem;
 		line-height: 1.6;
-		color: var(--text-primary, #e0e0e0);
-	}
-
-	.output-error {
-		padding: 1rem;
-		background: rgba(239, 68, 68, 0.1);
-		border: 1px solid #ef4444;
-		border-radius: 4px;
-	}
-
-	.output-error h3 {
-		color: #ef4444;
-		margin-bottom: 0.5rem;
-	}
-
-	.output-error p {
-		color: #fca5a5;
-		margin: 0;
+		color: var(--color-text-primary);
 	}
 
 	.streaming-output {
@@ -758,20 +680,31 @@
 	}
 
 	.streaming-indicator {
-		margin-top: 0.5rem;
-		color: var(--accent, #fb923c);
-		font-size: 0.875rem;
-		font-weight: 600;
-		animation: pulse 1.5s ease-in-out infinite;
+		margin-top: var(--spacing-md);
+		display: flex;
+		align-items: center;
+		gap: var(--spacing-sm);
 	}
 
-	@keyframes pulse {
-		0%,
-		100% {
-			opacity: 1;
+	/* ─────────────────────────────────────────────────────────────────────
+     Responsive
+     ───────────────────────────────────────────────────────────────────── */
+
+	@media (max-width: 768px) {
+		h1 {
+			font-size: 2rem;
 		}
-		50% {
-			opacity: 0.5;
+
+		.content-grid {
+			grid-template-columns: 1fr;
+		}
+
+		.skill-metadata {
+			grid-template-columns: 1fr;
+		}
+
+		.output-metadata {
+			grid-template-columns: repeat(2, 1fr);
 		}
 	}
 </style>

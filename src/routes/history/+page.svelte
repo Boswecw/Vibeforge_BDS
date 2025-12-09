@@ -1,670 +1,559 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
-	import { ErrorBoundary } from '$lib/components';
+  import { onMount } from 'svelte';
+  import { Panel, Input, Select, Button, Badge, Alert } from '$lib/components';
 
-	interface HistoryEntry {
-		id: string;
-		timestamp: string;
-		skillId: string;
-		skillName: string;
-		section: string;
-		category: string;
-		inputs: Record<string, any>;
-		output: string;
-		metadata: {
-			sessionId?: string;
-			tokensUsed?: number;
-			cost?: number;
-			latency?: number;
-			model?: string;
-		};
-		success: boolean;
-		error?: string;
-	}
+  interface HistoryEntry {
+    id: string;
+    timestamp: string;
+    skillId: string;
+    skillName: string;
+    section: string;
+    category: string;
+    inputs: Record<string, any>;
+    output: string;
+    metadata: {
+      sessionId?: string;
+      tokensUsed?: number;
+      cost?: number;
+      latency?: number;
+      model?: string;
+    };
+    success: boolean;
+    error?: string;
+  }
 
-	let history: HistoryEntry[] = $state([]);
-	let filteredHistory: HistoryEntry[] = $state([]);
-	let loading = $state(true);
+  let history: HistoryEntry[] = $state([]);
+  let filteredHistory: HistoryEntry[] = $state([]);
+  let loading = $state(true);
+  let searchQuery = $state('');
+  let filterSection = $state('all');
+  let filterStatus = $state('all');
+  let sortBy = $state('recent');
+  let currentPage = $state(1);
+  let itemsPerPage = 20;
+  let expandedId: string | null = $state(null);
 
-	// Filters
-	let searchQuery = $state('');
-	let filterSection = $state('all');
-	let filterStatus = $state('all');
-	let sortBy = $state('recent');
+  let totalPages = $derived(Math.ceil(filteredHistory.length / itemsPerPage));
+  let paginatedHistory = $derived(
+    filteredHistory.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
+  );
+  const sections = $derived(Array.from(new Set(history.map((entry) => entry.section))).sort());
 
-	// Pagination
-	let currentPage = $state(1);
-	let itemsPerPage = 20;
-	let totalPages = $derived(Math.ceil(filteredHistory.length / itemsPerPage));
-	let paginatedHistory = $derived(
-		filteredHistory.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
-	);
+  const sectionOptions = $derived([
+    { value: 'all', label: 'All Sections' },
+    ...sections.map((s) => ({ value: s, label: s }))
+  ]);
 
-	// Expanded entry details
-	let expandedId: string | null = $state(null);
+  const statusOptions = [
+    { value: 'all', label: 'All Status' },
+    { value: 'success', label: 'Success Only' },
+    { value: 'error', label: 'Errors Only' }
+  ];
 
-	onMount(() => {
-		loadHistory();
-		loading = false;
-	});
+  const sortOptions = [
+    { value: 'recent', label: 'Most Recent' },
+    { value: 'oldest', label: 'Oldest First' },
+    { value: 'name', label: 'Skill Name' },
+    { value: 'cost', label: 'Highest Cost' }
+  ];
 
-	function loadHistory() {
-		const stored = localStorage.getItem('execution_history');
-		if (stored) {
-			try {
-				history = JSON.parse(stored);
-				applyFilters();
-			} catch (error) {
-				console.error('Failed to load history:', error);
-				history = [];
-			}
-		}
-	}
+  onMount(() => {
+    loadHistory();
+    loading = false;
+  });
 
-	function applyFilters() {
-		let filtered = [...history];
+  function loadHistory() {
+    const stored = localStorage.getItem('execution_history');
+    if (stored) {
+      try {
+        history = JSON.parse(stored);
+        applyFilters();
+      } catch (error) {
+        console.error('Failed to load history:', error);
+        history = [];
+      }
+    }
+  }
 
-		// Search filter
-		if (searchQuery) {
-			const q = searchQuery.toLowerCase();
-			filtered = filtered.filter(
-				(entry) =>
-					entry.skillName.toLowerCase().includes(q) ||
-					entry.section.toLowerCase().includes(q) ||
-					entry.category.toLowerCase().includes(q)
-			);
-		}
+  function applyFilters() {
+    let filtered = [...history];
 
-		// Section filter
-		if (filterSection !== 'all') {
-			filtered = filtered.filter((entry) => entry.section === filterSection);
-		}
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase();
+      filtered = filtered.filter(
+        (entry) =>
+          entry.skillName.toLowerCase().includes(q) ||
+          entry.section.toLowerCase().includes(q) ||
+          entry.category.toLowerCase().includes(q)
+      );
+    }
 
-		// Status filter
-		if (filterStatus !== 'all') {
-			const isSuccess = filterStatus === 'success';
-			filtered = filtered.filter((entry) => entry.success === isSuccess);
-		}
+    if (filterSection !== 'all') {
+      filtered = filtered.filter((entry) => entry.section === filterSection);
+    }
 
-		// Sort
-		filtered.sort((a, b) => {
-			switch (sortBy) {
-				case 'recent':
-					return new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime();
-				case 'oldest':
-					return new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime();
-				case 'name':
-					return a.skillName.localeCompare(b.skillName);
-				case 'cost':
-					return (b.metadata.cost || 0) - (a.metadata.cost || 0);
-				default:
-					return 0;
-			}
-		});
+    if (filterStatus !== 'all') {
+      const isSuccess = filterStatus === 'success';
+      filtered = filtered.filter((entry) => entry.success === isSuccess);
+    }
 
-		filteredHistory = filtered;
-		currentPage = 1; // Reset to first page when filters change
-	}
+    filtered.sort((a, b) => {
+      switch (sortBy) {
+        case 'recent':
+          return new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime();
+        case 'oldest':
+          return new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime();
+        case 'name':
+          return a.skillName.localeCompare(b.skillName);
+        case 'cost':
+          return (b.metadata.cost || 0) - (a.metadata.cost || 0);
+        default:
+          return 0;
+      }
+    });
 
-	$effect(() => {
-		searchQuery;
-		filterSection;
-		filterStatus;
-		sortBy;
-		applyFilters();
-	});
+    filteredHistory = filtered;
+    currentPage = 1;
+  }
 
-	function toggleExpand(id: string) {
-		expandedId = expandedId === id ? null : id;
-	}
+  $effect(() => {
+    searchQuery;
+    filterSection;
+    filterStatus;
+    sortBy;
+    applyFilters();
+  });
 
-	function clearHistory() {
-		if (confirm('Are you sure you want to clear all execution history?')) {
-			localStorage.removeItem('execution_history');
-			history = [];
-			filteredHistory = [];
-		}
-	}
+  function toggleExpand(id: string) {
+    expandedId = expandedId === id ? null : id;
+  }
 
-	function deleteEntry(id: string) {
-		history = history.filter((entry) => entry.id !== id);
-		localStorage.setItem('execution_history', JSON.stringify(history));
-		applyFilters();
-	}
+  function clearHistory() {
+    if (confirm('Are you sure you want to clear all execution history?')) {
+      localStorage.removeItem('execution_history');
+      history = [];
+      filteredHistory = [];
+    }
+  }
 
-	function formatDate(timestamp: string): string {
-		return new Date(timestamp).toLocaleString();
-	}
+  function deleteEntry(id: string) {
+    history = history.filter((entry) => entry.id !== id);
+    localStorage.setItem('execution_history', JSON.stringify(history));
+    applyFilters();
+  }
 
-	function formatCost(cost?: number): string {
-		return cost !== undefined ? `$${cost.toFixed(4)}` : 'N/A';
-	}
+  function formatDate(timestamp: string): string {
+    return new Date(timestamp).toLocaleString();
+  }
 
-	function formatLatency(latency?: number): string {
-		return latency !== undefined ? `${latency}ms` : 'N/A';
-	}
+  function formatCost(cost?: number): string {
+    return cost !== undefined ? `$${cost.toFixed(4)}` : 'N/A';
+  }
 
-	// Get unique sections for filter dropdown
-	const sections = $derived(Array.from(new Set(history.map((entry) => entry.section))).sort());
+  function formatLatency(latency?: number): string {
+    return latency !== undefined ? `${latency}ms` : 'N/A';
+  }
 </script>
 
-<ErrorBoundary>
 <div class="history-container">
-	<div class="history-header">
-		<div>
-			<h1>Execution History</h1>
-			<p class="history-subtitle">
-				View and manage your skill invocation history ({filteredHistory.length} entries)
-			</p>
-		</div>
-		{#if history.length > 0}
-			<button onclick={clearHistory} class="btn-clear-history">Clear All History</button>
-		{/if}
-	</div>
+  <div class="page-header">
+    <div class="header-content">
+      <h1 class="page-title">Execution History</h1>
+      <p class="page-description">{filteredHistory.length} execution entries</p>
+    </div>
+    {#if history.length > 0}
+      <Button variant="danger" on:click={clearHistory}>Clear All History</Button>
+    {/if}
+  </div>
 
-	<!-- Filters and Search -->
-	{#if history.length > 0}
-		<div class="controls">
-			<div class="search-box">
-				<input
-					type="text"
-					bind:value={searchQuery}
-					placeholder="Search by skill name, section, or category..."
-					class="search-input"
-				/>
-			</div>
+  {#if history.length > 0}
+    <Panel variant="bordered" padding="lg">
+      <div class="filters-section">
+        <Input
+          type="search"
+          bind:value={searchQuery}
+          placeholder="Search by skill name, section, or category..."
+          fullWidth
+        />
 
-			<div class="filters">
-				<select bind:value={filterSection} class="filter-select">
-					<option value="all">All Sections</option>
-					{#each sections as section}
-						<option value={section}>{section}</option>
-					{/each}
-				</select>
+        <div class="filter-row">
+          <Select bind:value={filterSection} options={sectionOptions} fullWidth />
+          <Select bind:value={filterStatus} options={statusOptions} fullWidth />
+          <Select bind:value={sortBy} options={sortOptions} fullWidth />
+        </div>
+      </div>
+    </Panel>
+  {/if}
 
-				<select bind:value={filterStatus} class="filter-select">
-					<option value="all">All Status</option>
-					<option value="success">Success Only</option>
-					<option value="error">Errors Only</option>
-				</select>
+  {#if loading}
+    <div class="loading-state">
+      <div class="spinner"></div>
+      <p>Loading history...</p>
+    </div>
+  {:else if paginatedHistory.length === 0}
+    <Panel variant="elevated" padding="lg">
+      <div class="empty-state">
+        <div class="empty-icon">📋</div>
+        <p class="empty-message">No execution history found</p>
+        <p class="empty-hint">
+          {searchQuery || filterSection !== 'all' || filterStatus !== 'all'
+            ? 'Try adjusting your filters'
+            : 'Execute skills to see them appear here'}
+        </p>
+      </div>
+    </Panel>
+  {:else}
+    <div class="history-list">
+      {#each paginatedHistory as entry (entry.id)}
+        <Panel variant="bordered" padding="none">
+          <button class="entry-header" onclick={() => toggleExpand(entry.id)}>
+            <div class="entry-info">
+              <div class="entry-title">
+                <span class="skill-name">{entry.skillName}</span>
+                <Badge variant={entry.success ? 'success' : 'error'} size="sm">
+                  {entry.success ? 'Success' : 'Error'}
+                </Badge>
+              </div>
+              <div class="entry-meta">
+                <span>{formatDate(entry.timestamp)}</span>
+                <span class="separator">•</span>
+                <Badge variant="default" size="sm">{entry.section}</Badge>
+                <span class="separator">•</span>
+                <Badge variant="default" size="sm">{entry.category}</Badge>
+                {#if entry.metadata.cost}
+                  <span class="separator">•</span>
+                  <Badge variant="accent" size="sm">{formatCost(entry.metadata.cost)}</Badge>
+                {/if}
+              </div>
+            </div>
+            <span class="expand-icon">{expandedId === entry.id ? '▼' : '▶'}</span>
+          </button>
 
-				<select bind:value={sortBy} class="filter-select">
-					<option value="recent">Most Recent</option>
-					<option value="oldest">Oldest First</option>
-					<option value="name">Skill Name</option>
-					<option value="cost">Highest Cost</option>
-				</select>
-			</div>
-		</div>
-	{/if}
+          {#if expandedId === entry.id}
+            <div class="entry-details">
+              {#if entry.metadata}
+                <div class="details-section">
+                  <h3 class="section-title">Metadata</h3>
+                  <div class="metadata-grid">
+                    {#if entry.metadata.sessionId}
+                      <div class="meta-item">
+                        <span class="meta-label">Session ID</span>
+                        <code>{entry.metadata.sessionId}</code>
+                      </div>
+                    {/if}
+                    {#if entry.metadata.model}
+                      <div class="meta-item">
+                        <span class="meta-label">Model</span>
+                        <code>{entry.metadata.model}</code>
+                      </div>
+                    {/if}
+                    {#if entry.metadata.tokensUsed}
+                      <div class="meta-item">
+                        <span class="meta-label">Tokens</span>
+                        <code>{entry.metadata.tokensUsed}</code>
+                      </div>
+                    {/if}
+                    {#if entry.metadata.latency}
+                      <div class="meta-item">
+                        <span class="meta-label">Latency</span>
+                        <code>{formatLatency(entry.metadata.latency)}</code>
+                      </div>
+                    {/if}
+                  </div>
+                </div>
+              {/if}
 
-	<!-- History List -->
-	{#if loading}
-		<div class="empty-state">
-			<p>Loading history...</p>
-		</div>
-	{:else if paginatedHistory.length === 0}
-		<div class="empty-state">
-			<div class="empty-icon">📋</div>
-			<p>No execution history found</p>
-			{#if searchQuery || filterSection !== 'all' || filterStatus !== 'all'}
-				<p class="empty-hint">Try adjusting your filters</p>
-			{:else}
-				<p class="empty-hint">Execute skills to see them appear here</p>
-			{/if}
-		</div>
-	{:else}
-		<div class="history-list">
-			{#each paginatedHistory as entry (entry.id)}
-				<div class="history-entry">
-					<div
-						class="entry-header"
-						role="button"
-						tabindex="0"
-						onclick={() => toggleExpand(entry.id)}
-						onkeydown={(e) => e.key === 'Enter' && toggleExpand(entry.id)}
-					>
-						<div class="entry-info">
-							<div class="entry-title">
-								<span class="skill-name">{entry.skillName}</span>
-								<span class="entry-status" class:success={entry.success} class:error={!entry.success}>
-									{entry.success ? '✓ Success' : '✗ Error'}
-								</span>
-							</div>
-							<div class="entry-meta">
-								<span class="meta-item">{formatDate(entry.timestamp)}</span>
-								<span class="meta-separator">•</span>
-								<span class="meta-item">{entry.section}</span>
-								<span class="meta-separator">•</span>
-								<span class="meta-item">{entry.category}</span>
-								{#if entry.metadata.cost}
-									<span class="meta-separator">•</span>
-									<span class="meta-item">{formatCost(entry.metadata.cost)}</span>
-								{/if}
-							</div>
-						</div>
+              {#if Object.keys(entry.inputs).length > 0}
+                <div class="details-section">
+                  <h3 class="section-title">Inputs</h3>
+                  <pre class="code-block">{JSON.stringify(entry.inputs, null, 2)}</pre>
+                </div>
+              {/if}
 
-						<button class="expand-btn" class:expanded={expandedId === entry.id}>
-							{expandedId === entry.id ? '▼' : '▶'}
-						</button>
-					</div>
+              <div class="details-section">
+                <h3 class="section-title">{entry.success ? 'Output' : 'Error'}</h3>
+                {#if entry.success}
+                  <div class="output-box">{entry.output}</div>
+                {:else}
+                  <Alert variant="error">{entry.error || 'Unknown error occurred'}</Alert>
+                {/if}
+              </div>
 
-					{#if expandedId === entry.id}
-						<div class="entry-details">
-							<!-- Metadata -->
-							{#if entry.metadata}
-								<div class="details-section">
-									<h3>Metadata</h3>
-									<div class="metadata-grid">
-										{#if entry.metadata.sessionId}
-											<div class="meta-field">
-												<span class="meta-label">Session ID:</span>
-												<span class="meta-value">{entry.metadata.sessionId}</span>
-											</div>
-										{/if}
-										{#if entry.metadata.model}
-											<div class="meta-field">
-												<span class="meta-label">Model:</span>
-												<span class="meta-value">{entry.metadata.model}</span>
-											</div>
-										{/if}
-										{#if entry.metadata.tokensUsed}
-											<div class="meta-field">
-												<span class="meta-label">Tokens:</span>
-												<span class="meta-value">{entry.metadata.tokensUsed}</span>
-											</div>
-										{/if}
-										{#if entry.metadata.latency}
-											<div class="meta-field">
-												<span class="meta-label">Latency:</span>
-												<span class="meta-value">{formatLatency(entry.metadata.latency)}</span>
-											</div>
-										{/if}
-									</div>
-								</div>
-							{/if}
+              <div class="entry-actions">
+                <Button variant="danger" size="sm" on:click={() => deleteEntry(entry.id)}>
+                  Delete Entry
+                </Button>
+              </div>
+            </div>
+          {/if}
+        </Panel>
+      {/each}
+    </div>
 
-							<!-- Inputs -->
-							{#if Object.keys(entry.inputs).length > 0}
-								<div class="details-section">
-									<h3>Inputs</h3>
-									<pre class="code-block">{JSON.stringify(entry.inputs, null, 2)}</pre>
-								</div>
-							{/if}
-
-							<!-- Output -->
-							<div class="details-section">
-								<h3>{entry.success ? 'Output' : 'Error'}</h3>
-								{#if entry.success}
-									<div class="output-box">
-										{entry.output}
-									</div>
-								{:else}
-									<div class="error-box">
-										{entry.error || 'Unknown error occurred'}
-									</div>
-								{/if}
-							</div>
-
-							<!-- Actions -->
-							<div class="entry-actions">
-								<button onclick={() => deleteEntry(entry.id)} class="btn-delete">
-									Delete Entry
-								</button>
-							</div>
-						</div>
-					{/if}
-				</div>
-			{/each}
-		</div>
-
-		<!-- Pagination -->
-		{#if totalPages > 1}
-			<div class="pagination">
-				<button
-					onclick={() => (currentPage = Math.max(1, currentPage - 1))}
-					disabled={currentPage === 1}
-					class="pagination-btn"
-				>
-					Previous
-				</button>
-				<span class="pagination-info">
-					Page {currentPage} of {totalPages}
-				</span>
-				<button
-					onclick={() => (currentPage = Math.min(totalPages, currentPage + 1))}
-					disabled={currentPage === totalPages}
-					class="pagination-btn"
-				>
-					Next
-				</button>
-			</div>
-		{/if}
-	{/if}
+    {#if totalPages > 1}
+      <div class="pagination">
+        <Button
+          variant="secondary"
+          size="sm"
+          disabled={currentPage === 1}
+          on:click={() => (currentPage = Math.max(1, currentPage - 1))}
+        >
+          Previous
+        </Button>
+        <Badge variant="default">Page {currentPage} of {totalPages}</Badge>
+        <Button
+          variant="secondary"
+          size="sm"
+          disabled={currentPage === totalPages}
+          on:click={() => (currentPage = Math.min(totalPages, currentPage + 1))}
+        >
+          Next
+        </Button>
+      </div>
+    {/if}
+  {/if}
 </div>
-</ErrorBoundary>
 
 <style>
-	.history-container {
-		max-width: 1200px;
-		margin: 0 auto;
-		padding: 2rem;
-	}
+  .history-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xl);
+  }
 
-	.history-header {
-		display: flex;
-		justify-content: space-between;
-		align-items: flex-start;
-		margin-bottom: 2rem;
-	}
+  .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: var(--spacing-lg);
+  }
 
-	h1 {
-		font-size: 2.5rem;
-		font-weight: 700;
-		color: var(--accent, #fb923c);
-		margin: 0 0 0.5rem 0;
-	}
+  .header-content {
+    flex: 1;
+  }
 
-	.history-subtitle {
-		font-size: 1rem;
-		color: var(--text-secondary, #9ca3af);
-		margin: 0;
-	}
+  .page-title {
+    font-family: var(--font-family-heading);
+    font-size: 2.5rem;
+    font-weight: 300;
+    color: var(--color-text-primary);
+    margin: 0 0 var(--spacing-sm) 0;
+    letter-spacing: 0.02em;
+  }
 
-	.btn-clear-history {
-		padding: 0.75rem 1.5rem;
-		background: #dc2626;
-		color: white;
-		border: none;
-		border-radius: 4px;
-		font-size: 0.875rem;
-		font-weight: 600;
-		cursor: pointer;
-		transition: all 0.2s;
-	}
+  .page-description {
+    font-size: 1.125rem;
+    color: var(--color-text-tertiary);
+    margin: 0;
+  }
 
-	.btn-clear-history:hover {
-		background: #b91c1c;
-	}
+  .filters-section {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+  }
 
-	.controls {
-		margin-bottom: 2rem;
-		display: flex;
-		flex-direction: column;
-		gap: 1rem;
-	}
+  .filter-row {
+    display: flex;
+    gap: var(--spacing-md);
+  }
 
-	.search-box {
-		flex: 1;
-	}
+  .loading-state,
+  .empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-lg);
+    padding: var(--spacing-3xl) var(--spacing-xl);
+    text-align: center;
+  }
 
-	.search-input {
-		width: 100%;
-		padding: 0.75rem 1rem;
-		background: var(--bg-secondary, #1a1a1a);
-		border: 1px solid var(--border, #333);
-		border-radius: 4px;
-		color: var(--text-primary, #e0e0e0);
-		font-size: 0.875rem;
-	}
+  .spinner {
+    width: 48px;
+    height: 48px;
+    border: 4px solid var(--color-border-subtle);
+    border-top-color: var(--color-brass);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
 
-	.search-input:focus {
-		outline: none;
-		border-color: var(--accent, #fb923c);
-	}
+  @keyframes spin {
+    to {
+      transform: rotate(360deg);
+    }
+  }
 
-	.filters {
-		display: flex;
-		gap: 1rem;
-		flex-wrap: wrap;
-	}
+  .empty-icon {
+    font-size: 4rem;
+  }
 
-	.filter-select {
-		padding: 0.75rem 1rem;
-		background: var(--bg-secondary, #1a1a1a);
-		border: 1px solid var(--border, #333);
-		border-radius: 4px;
-		color: var(--text-primary, #e0e0e0);
-		font-size: 0.875rem;
-		cursor: pointer;
-	}
+  .empty-message {
+    font-size: 1.125rem;
+    color: var(--color-text-secondary);
+    margin: 0;
+  }
 
-	.history-list {
-		display: grid;
-		gap: 1rem;
-	}
+  .empty-hint {
+    font-size: 0.875rem;
+    color: var(--color-text-tertiary);
+    margin: 0;
+  }
 
-	.history-entry {
-		background: var(--bg-secondary, #1a1a1a);
-		border: 1px solid var(--border, #333);
-		border-radius: 8px;
-		overflow: hidden;
-	}
+  .history-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+  }
 
-	.entry-header {
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-		padding: 1.5rem;
-		cursor: pointer;
-		transition: background 0.2s;
-	}
+  .entry-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--spacing-lg);
+    background: transparent;
+    border: none;
+    width: 100%;
+    text-align: left;
+    cursor: pointer;
+    transition: background-color var(--transition-fast);
+  }
 
-	.entry-header:hover {
-		background: var(--bg-tertiary, #2a2a2a);
-	}
+  .entry-header:hover {
+    background-color: var(--color-surface-3);
+  }
 
-	.entry-info {
-		flex: 1;
-	}
+  .entry-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+  }
 
-	.entry-title {
-		display: flex;
-		align-items: center;
-		gap: 1rem;
-		margin-bottom: 0.5rem;
-	}
+  .entry-title {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+  }
 
-	.skill-name {
-		font-size: 1.125rem;
-		font-weight: 600;
-		color: var(--text-primary, #e0e0e0);
-	}
+  .skill-name {
+    font-family: var(--font-family-heading);
+    font-size: 1.125rem;
+    font-weight: 300;
+    color: var(--color-text-primary);
+    letter-spacing: 0.02em;
+  }
 
-	.entry-status {
-		font-size: 0.75rem;
-		font-weight: 600;
-		padding: 0.25rem 0.75rem;
-		border-radius: 12px;
-	}
+  .entry-meta {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    font-size: 0.75rem;
+    color: var(--color-text-tertiary);
+  }
 
-	.entry-status.success {
-		background: rgba(34, 197, 94, 0.1);
-		color: #22c55e;
-	}
+  .separator {
+    color: var(--color-border-default);
+  }
 
-	.entry-status.error {
-		background: rgba(239, 68, 68, 0.1);
-		color: #ef4444;
-	}
+  .expand-icon {
+    font-size: 1rem;
+    color: var(--color-text-tertiary);
+  }
 
-	.entry-meta {
-		display: flex;
-		align-items: center;
-		gap: 0.5rem;
-		font-size: 0.75rem;
-		color: var(--text-tertiary, #6b7280);
-	}
+  .entry-details {
+    padding: 0 var(--spacing-lg) var(--spacing-lg);
+    border-top: 1px solid var(--color-border-subtle);
+  }
 
-	.meta-separator {
-		color: var(--border, #333);
-	}
+  .details-section {
+    margin-top: var(--spacing-lg);
+  }
 
-	.expand-btn {
-		padding: 0.5rem 1rem;
-		background: none;
-		border: none;
-		color: var(--text-secondary, #9ca3af);
-		cursor: pointer;
-		font-size: 1rem;
-		transition: transform 0.2s;
-	}
+  .section-title {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--color-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin: 0 0 var(--spacing-md) 0;
+  }
 
-	.expand-btn.expanded {
-		transform: rotate(0deg);
-	}
+  .metadata-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--spacing-md);
+  }
 
-	.entry-details {
-		padding: 0 1.5rem 1.5rem 1.5rem;
-		border-top: 1px solid var(--border, #333);
-	}
+  .meta-item {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+  }
 
-	.details-section {
-		margin-top: 1.5rem;
-	}
+  .meta-label {
+    font-size: 0.75rem;
+    color: var(--color-text-tertiary);
+  }
 
-	.details-section h3 {
-		font-size: 0.875rem;
-		font-weight: 600;
-		color: var(--text-secondary, #9ca3af);
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-		margin: 0 0 0.75rem 0;
-	}
+  code {
+    font-family: var(--font-family-mono);
+    font-size: 0.875rem;
+    color: var(--color-text-primary);
+  }
 
-	.metadata-grid {
-		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-		gap: 1rem;
-	}
+  .code-block {
+    background-color: var(--color-surface-1);
+    border: 1px solid var(--color-border-subtle);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-md);
+    overflow-x: auto;
+    font-family: var(--font-family-mono);
+    font-size: 0.75rem;
+    line-height: 1.5;
+    color: var(--color-text-secondary);
+    margin: 0;
+  }
 
-	.meta-field {
-		display: flex;
-		flex-direction: column;
-		gap: 0.25rem;
-	}
+  .output-box {
+    background-color: var(--color-surface-3);
+    border-radius: var(--radius-md);
+    padding: var(--spacing-md);
+    color: var(--color-text-primary);
+    white-space: pre-wrap;
+    font-size: 0.875rem;
+    line-height: 1.6;
+    max-height: 400px;
+    overflow-y: auto;
+  }
 
-	.meta-label {
-		font-size: 0.75rem;
-		color: var(--text-tertiary, #6b7280);
-	}
+  .entry-actions {
+    margin-top: var(--spacing-lg);
+    display: flex;
+    gap: var(--spacing-md);
+  }
 
-	.meta-value {
-		font-size: 0.875rem;
-		color: var(--text-primary, #e0e0e0);
-		font-family: monospace;
-	}
+  .pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: var(--spacing-lg);
+    padding: var(--spacing-lg) 0;
+  }
 
-	.code-block {
-		background: var(--bg-primary, #0a0a0a);
-		border: 1px solid var(--border, #333);
-		border-radius: 4px;
-		padding: 1rem;
-		overflow-x: auto;
-		font-size: 0.75rem;
-		line-height: 1.5;
-		color: var(--text-secondary, #9ca3af);
-		margin: 0;
-	}
+  @media (max-width: 768px) {
+    .page-title {
+      font-size: 2rem;
+    }
 
-	.output-box {
-		background: var(--bg-primary, #0a0a0a);
-		border: 1px solid var(--border, #333);
-		border-radius: 4px;
-		padding: 1rem;
-		color: var(--text-primary, #e0e0e0);
-		white-space: pre-wrap;
-		font-size: 0.875rem;
-		line-height: 1.6;
-		max-height: 400px;
-		overflow-y: auto;
-	}
+    .filter-row {
+      flex-direction: column;
+    }
 
-	.error-box {
-		background: rgba(239, 68, 68, 0.1);
-		border: 1px solid rgba(239, 68, 68, 0.3);
-		border-radius: 4px;
-		padding: 1rem;
-		color: #ef4444;
-		font-size: 0.875rem;
-		line-height: 1.6;
-	}
-
-	.entry-actions {
-		margin-top: 1.5rem;
-		display: flex;
-		gap: 1rem;
-	}
-
-	.btn-delete {
-		padding: 0.5rem 1rem;
-		background: none;
-		border: 1px solid #dc2626;
-		color: #dc2626;
-		border-radius: 4px;
-		font-size: 0.75rem;
-		font-weight: 600;
-		cursor: pointer;
-		transition: all 0.2s;
-	}
-
-	.btn-delete:hover {
-		background: #dc2626;
-		color: white;
-	}
-
-	.empty-state {
-		text-align: center;
-		padding: 4rem 2rem;
-		color: var(--text-secondary, #9ca3af);
-	}
-
-	.empty-icon {
-		font-size: 4rem;
-		margin-bottom: 1rem;
-	}
-
-	.empty-state p {
-		margin: 0.5rem 0;
-	}
-
-	.empty-hint {
-		font-size: 0.875rem;
-		color: var(--text-tertiary, #6b7280);
-	}
-
-	.pagination {
-		display: flex;
-		justify-content: center;
-		align-items: center;
-		gap: 2rem;
-		margin-top: 2rem;
-		padding: 1.5rem;
-	}
-
-	.pagination-btn {
-		padding: 0.5rem 1rem;
-		background: var(--bg-secondary, #1a1a1a);
-		border: 1px solid var(--border, #333);
-		color: var(--text-primary, #e0e0e0);
-		border-radius: 4px;
-		font-size: 0.875rem;
-		cursor: pointer;
-		transition: all 0.2s;
-	}
-
-	.pagination-btn:hover:not(:disabled) {
-		background: var(--accent, #fb923c);
-		color: #000;
-	}
-
-	.pagination-btn:disabled {
-		opacity: 0.3;
-		cursor: not-allowed;
-	}
-
-	.pagination-info {
-		font-size: 0.875rem;
-		color: var(--text-secondary, #9ca3af);
-	}
+    .entry-meta {
+      flex-wrap: wrap;
+    }
+  }
 </style>

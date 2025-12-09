@@ -1,0 +1,27 @@
+/* ═══════════════════════════════════════════════════════════════════════
+   VibeForge_BDS Font Definitions
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* Cinzel - Elegant serif for headings */
+/* NOTE: Font files corrupted, using Google Fonts CDN fallback */
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@300;400;600&display=swap');
+
+/* Inter - Clean sans-serif for body text */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+/* JetBrains Mono - Technical monospace for code */
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('/fonts/JetBrainsMono-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('/fonts/JetBrainsMono-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}

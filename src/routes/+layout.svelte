@@ -1,37 +1,70 @@
 <script lang="ts">
-	import '../app.css';
-	import { page } from '$app/stores';
+  import '../app.css';
+  import { Sidebar, Header, ErrorBoundary, ErrorNotifications } from '$lib/components';
+  import OfflineBanner from '$lib/components/OfflineBanner.svelte';
 
-	const links = [
-		{ href: '/planning', label: 'Planning' },
-		{ href: '/workbench', label: 'Workbench' },
-		{ href: '/coordinator', label: 'Coordinator' },
-		{ href: '/admin/agents', label: 'Admin' }
-	];
+  // Show error details in development mode
+  const showErrorDetails = typeof window !== 'undefined' && window.location.hostname === 'localhost';
 </script>
 
-<div class="min-h-screen bg-slate-950 text-white">
-	<header class="border-b border-slate-800 bg-slate-900/70">
-		<div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
-			<div class="text-lg font-semibold">VibeForge_BDS</div>
-			<nav class="flex items-center gap-3 text-sm">
-				{#each links as link}
-					<a
-						class={`px-3 py-2 rounded ${
-							$page.url.pathname.startsWith(link.href)
-								? 'bg-amber-500 text-black font-semibold'
-								: 'text-slate-200 hover:text-white hover:bg-slate-800'
-						}`}
-						href={link.href}
-					>
-						{link.label}
-					</a>
-				{/each}
-			</nav>
-		</div>
-	</header>
+<!-- VibeForge_BDS Layout Structure -->
+<ErrorBoundary showDetails={showErrorDetails}>
+  <!-- Offline Banner -->
+  <OfflineBanner />
 
-	<main class="max-w-6xl mx-auto px-4 py-6">
-		<slot />
-	</main>
-</div>
+  <div class="app-layout">
+    <!-- Fixed Sidebar (280px) -->
+    <Sidebar />
+
+    <!-- Main Content Area -->
+    <div class="app-content">
+      <!-- Sticky Header -->
+      <Header />
+
+      <!-- Page Content -->
+      <main class="main-content">
+        <slot />
+      </main>
+    </div>
+
+    <!-- Global Error Notifications -->
+    <ErrorNotifications />
+  </div>
+</ErrorBoundary>
+
+<style>
+  /* ═══════════════════════════════════════════════════════════════════════
+     Application Layout
+     ═══════════════════════════════════════════════════════════════════════ */
+
+  .app-layout {
+    display: flex;
+    min-height: 100vh;
+    background-color: var(--color-midnight);
+  }
+
+  .app-content {
+    flex: 1;
+    margin-left: 280px; /* Sidebar width */
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+
+  .main-content {
+    flex: 1;
+    padding: var(--spacing-xl);
+    overflow-x: hidden;
+  }
+
+  /* Responsive Layout */
+  @media (max-width: 768px) {
+    .app-content {
+      margin-left: 0;
+    }
+
+    .main-content {
+      padding: var(--spacing-md);
+    }
+  }
+</style>

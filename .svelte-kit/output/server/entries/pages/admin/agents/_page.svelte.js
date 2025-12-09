@@ -1,7 +1,6 @@
-import { W as attr, _ as bind_props, U as ensure_array_like, X as store_get, Z as unsubscribe_stores } from "../../../../chunks/index2.js";
+import { Z as attr, a1 as bind_props, X as ensure_array_like, a2 as fallback, _ as store_get, a0 as unsubscribe_stores } from "../../../../chunks/index2.js";
 import { w as writable } from "../../../../chunks/index.js";
 import { e as escape_html } from "../../../../chunks/escaping.js";
-import { f as fallback } from "../../../../chunks/context.js";
 const AGENT_TEMPLATES = {
   planner: [
     {

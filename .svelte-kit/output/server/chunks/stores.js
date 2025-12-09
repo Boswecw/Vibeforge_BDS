@@ -1,22 +1,22 @@
-import { g as getContext } from "./context.js";
+import { a5 as getContext } from "./index2.js";
 import "@sveltejs/kit/internal";
 import "./exports.js";
 import "./utils.js";
 import "@sveltejs/kit/internal/server";
 import "./state.svelte.js";
 const getStores = () => {
-  const stores$1 = getContext("__svelte__");
+  const stores = getContext("__svelte__");
   return {
     /** @type {typeof page} */
     page: {
-      subscribe: stores$1.page.subscribe
+      subscribe: stores.page.subscribe
     },
     /** @type {typeof navigating} */
     navigating: {
-      subscribe: stores$1.navigating.subscribe
+      subscribe: stores.navigating.subscribe
     },
     /** @type {typeof updated} */
-    updated: stores$1.updated
+    updated: stores.updated
   };
 };
 const page = {

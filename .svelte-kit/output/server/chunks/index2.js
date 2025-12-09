@@ -1,6 +1,48 @@
 import { e as escape_html } from "./escaping.js";
 import { B as BROWSER } from "./false.js";
-import { r as run_all, c as deferred, e as safe_equals, h as equals, o as object_prototype, i as array_prototype, j as get_descriptor, k as get_prototype_of, l as is_array, m as is_extensible, p as index_of, n as noop, q as set_ssr_context, t as ssr_context, u as push$1, v as pop$1 } from "./context.js";
+var is_array = Array.isArray;
+var index_of = Array.prototype.indexOf;
+var array_from = Array.from;
+var define_property = Object.defineProperty;
+var get_descriptor = Object.getOwnPropertyDescriptor;
+var object_prototype = Object.prototype;
+var array_prototype = Array.prototype;
+var get_prototype_of = Object.getPrototypeOf;
+var is_extensible = Object.isExtensible;
+const noop = () => {
+};
+function run_all(arr) {
+  for (var i = 0; i < arr.length; i++) {
+    arr[i]();
+  }
+}
+function deferred() {
+  var resolve;
+  var reject;
+  var promise = new Promise((res, rej) => {
+    resolve = res;
+    reject = rej;
+  });
+  return { promise, resolve, reject };
+}
+function fallback(value, fallback2, lazy = false) {
+  return value === void 0 ? lazy ? (
+    /** @type {() => V} */
+    fallback2()
+  ) : (
+    /** @type {V} */
+    fallback2
+  ) : value;
+}
+function equals(value) {
+  return value === this.v;
+}
+function safe_not_equal(a, b) {
+  return a != a ? b == b : a !== b || a !== null && typeof a === "object" || typeof a === "function";
+}
+function safe_equals(value) {
+  return !safe_not_equal(value, this.v);
+}
 const DERIVED = 1 << 1;
 const EFFECT = 1 << 2;
 const RENDER_EFFECT = 1 << 3;
@@ -32,6 +74,11 @@ const STALE_REACTION = new class StaleReactionError extends Error {
   message = "The reaction that called `getAbortSignal()` was re-run or destroyed";
 }();
 const COMMENT_NODE = 8;
+function lifecycle_outside_component(name) {
+  {
+    throw new Error(`https://svelte.dev/e/lifecycle_outside_component`);
+  }
+}
 function effect_update_depth_exceeded() {
   {
     throw new Error(`https://svelte.dev/e/effect_update_depth_exceeded`);
@@ -75,7 +122,7 @@ let component_context = null;
 function set_component_context(context) {
   component_context = context;
 }
-function push(props, runes = false, fn) {
+function push$1(props, runes = false, fn) {
   component_context = {
     p: component_context,
     i: false,
@@ -86,7 +133,7 @@ function push(props, runes = false, fn) {
     l: null
   };
 }
-function pop(component) {
+function pop$1(component) {
   var context = (
     /** @type {ComponentContext} */
     component_context
@@ -1937,6 +1984,46 @@ https://svelte.dev/e/server_context_required`);
   error.name = "Svelte error";
   throw error;
 }
+var ssr_context = null;
+function set_ssr_context(v) {
+  ssr_context = v;
+}
+function getContext(key) {
+  const context_map = get_or_init_context_map();
+  const result = (
+    /** @type {T} */
+    context_map.get(key)
+  );
+  return result;
+}
+function setContext(key, context) {
+  get_or_init_context_map().set(key, context);
+  return context;
+}
+function get_or_init_context_map(name) {
+  if (ssr_context === null) {
+    lifecycle_outside_component();
+  }
+  return ssr_context.c ??= new Map(get_parent_context(ssr_context) || void 0);
+}
+function push(fn) {
+  ssr_context = { p: ssr_context, c: null, r: null };
+}
+function pop() {
+  ssr_context = /** @type {SSRContext} */
+  ssr_context.p;
+}
+function get_parent_context(ssr_context2) {
+  let parent = ssr_context2.p;
+  while (parent !== null) {
+    const context_map = parent.c;
+    if (context_map !== null) {
+      return context_map;
+    }
+    parent = parent.p;
+  }
+  return null;
+}
 function unresolved_hydratable(key, stack) {
   {
     console.warn(`https://svelte.dev/e/unresolved_hydratable`);
@@ -2098,10 +2185,10 @@ class Renderer {
    * @returns {void}
    */
   component(fn, component_fn) {
-    push$1();
+    push();
     const child = this.child(fn);
     child.#is_component_body = true;
-    pop$1();
+    pop();
   }
   /**
    * @param {Record<string, any>} attrs
@@ -2429,13 +2516,13 @@ class Renderer {
     );
     renderer.push(BLOCK_OPEN);
     if (options.context) {
-      push$1();
+      push();
       ssr_context.c = options.context;
       ssr_context.r = renderer;
     }
     component(renderer, options.props ?? {});
     if (options.context) {
-      pop$1();
+      pop();
     }
     renderer.push(BLOCK_CLOSE);
     return renderer;
@@ -2621,34 +2708,42 @@ function ensure_array_like(array_like_or_iterator) {
   return [];
 }
 export {
+  slot as $,
   svelte_boundary_reset_onerror as A,
   Batch as B,
   COMMENT_NODE as C,
   EFFECT_PRESERVED as D,
   EFFECT_TRANSPARENT as E,
   BOUNDARY_EFFECT as F,
-  init_operations as G,
+  define_property as G,
   HYDRATION_ERROR as H,
-  get_first_child as I,
-  hydration_failed as J,
-  clear_text_content as K,
-  component_root as L,
-  is_passive_event as M,
-  push as N,
-  pop as O,
-  set as P,
-  LEGACY_PROPS as Q,
-  flushSync as R,
-  mutable_source as S,
-  render as T,
-  ensure_array_like as U,
-  attr_class as V,
-  attr as W,
-  store_get as X,
-  slot as Y,
-  unsubscribe_stores as Z,
-  bind_props as _,
+  init_operations as I,
+  get_first_child as J,
+  hydration_failed as K,
+  clear_text_content as L,
+  array_from as M,
+  component_root as N,
+  is_passive_event as O,
+  push$1 as P,
+  pop$1 as Q,
+  set as R,
+  LEGACY_PROPS as S,
+  flushSync as T,
+  mutable_source as U,
+  render as V,
+  setContext as W,
+  ensure_array_like as X,
+  attr_class as Y,
+  attr as Z,
+  store_get as _,
   HYDRATION_END as a,
+  unsubscribe_stores as a0,
+  bind_props as a1,
+  fallback as a2,
+  noop as a3,
+  safe_not_equal as a4,
+  getContext as a5,
+  ssr_context as a6,
   HYDRATION_START as b,
   HYDRATION_START_ELSE as c,
   get as d,

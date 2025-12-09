@@ -1,60 +1,77 @@
 <script lang="ts">
 	import { onMount, onDestroy } from 'svelte';
 	import type { Snippet } from 'svelte';
+	import { classifyError, type AppError } from '$lib/utils/errors';
+	import { errorStore } from '$lib/stores/errors.svelte';
+	import { Alert, Button, Panel } from '$lib/components';
 
 	interface Props {
-		fallback?: Snippet<[Error]>;
-		onError?: (error: Error, errorInfo: any) => void;
+		fallback?: Snippet<[AppError]>;
+		onError?: (error: AppError) => void;
+		showDetails?: boolean;
 		children?: Snippet;
 	}
 
-	let { fallback, onError, children }: Props = $props();
+	let { fallback, onError, showDetails = false, children }: Props = $props();
 
-	let error: Error | null = $state(null);
-	let errorInfo: any = $state(null);
+	let error: AppError | null = $state(null);
+	let errorInfo: string = $state('');
 	let hasError = $derived(error !== null);
 
-	// Error handler for unhandled promise rejections
+	// Error handler for unhandled errors
+	let errorHandler: ((event: ErrorEvent) => void) | null = null;
 	let unhandledRejectionHandler: ((event: PromiseRejectionEvent) => void) | null = null;
 
 	onMount(() => {
-		// Handle unhandled promise rejections
-		unhandledRejectionHandler = (event: PromiseRejectionEvent) => {
-			const err = event.reason instanceof Error ? event.reason : new Error(String(event.reason));
-			handleError(err, { type: 'unhandledRejection' });
+		// Handle window errors
+		errorHandler = (event: ErrorEvent) => {
+			const appError = classifyError(event.error);
+			handleError(appError, event.error?.stack || '');
 			event.preventDefault();
 		};
 
+		// Handle unhandled promise rejections
+		unhandledRejectionHandler = (event: PromiseRejectionEvent) => {
+			const appError = classifyError(event.reason);
+			handleError(appError, event.reason?.stack || '');
+			event.preventDefault();
+		};
+
+		window.addEventListener('error', errorHandler);
 		window.addEventListener('unhandledrejection', unhandledRejectionHandler);
 	});
 
 	onDestroy(() => {
+		if (errorHandler) {
+			window.removeEventListener('error', errorHandler);
+		}
 		if (unhandledRejectionHandler) {
 			window.removeEventListener('unhandledrejection', unhandledRejectionHandler);
 		}
 	});
 
-	function handleError(err: Error, info: any = {}) {
-		error = err;
-		errorInfo = info;
+	function handleError(appError: AppError, stack: string = '') {
+		error = appError;
+		errorInfo = stack;
+
+		// Add to global error store
+		errorStore.addError(appError);
 
 		// Call onError callback if provided
 		if (onError) {
-			onError(err, info);
+			onError(appError);
 		}
-
-		// Log to console for debugging
-		console.error('ErrorBoundary caught error:', err, info);
 	}
 
 	function resetError() {
 		error = null;
-		errorInfo = null;
+		errorInfo = '';
 	}
 
 	// Export method to manually trigger error handling
-	export function catchError(err: Error, info: any = {}) {
-		handleError(err, info);
+	export function catchError(err: unknown) {
+		const appError = classifyError(err);
+		handleError(appError, err instanceof Error ? err.stack || '' : '');
 	}
 </script>
 
@@ -63,30 +80,32 @@
 		{@render fallback(error)}
 	{:else}
 		<div class="error-boundary">
-			<div class="error-container">
-				<div class="error-icon">⚠️</div>
-				<h2>Something went wrong</h2>
-				<p class="error-message">{error.message || 'An unexpected error occurred'}</p>
+			<Panel variant="elevated" padding="lg">
+				<div class="error-container">
+					<div class="error-icon">⚠️</div>
+					<h2>Something went wrong</h2>
 
-				{#if errorInfo?.componentStack}
-					<details class="error-details">
-						<summary>Error Details</summary>
-						<pre class="error-stack">{errorInfo.componentStack}</pre>
-					</details>
-				{/if}
+					<Alert variant="error" title={error.category}>
+						{error.userMessage}
+					</Alert>
 
-				{#if error.stack}
-					<details class="error-details">
-						<summary>Stack Trace</summary>
-						<pre class="error-stack">{error.stack}</pre>
-					</details>
-				{/if}
+					{#if showDetails && errorInfo}
+						<details class="error-details">
+							<summary>Technical Details</summary>
+							<pre class="error-stack">{errorInfo}</pre>
+						</details>
+					{/if}
 
-				<div class="error-actions">
-					<button onclick={resetError} class="btn-retry">Try Again</button>
-					<button onclick={() => window.location.reload()} class="btn-reload">Reload Page</button>
+					<div class="error-actions">
+						<Button variant="primary" on:click={resetError}>Try Again</Button>
+						<Button variant="secondary" on:click={() => window.location.reload()}>
+							Reload Page
+						</Button>
+					</div>
+
+					<p class="error-id">Error ID: {error.id}</p>
 				</div>
-			</div>
+			</Panel>
 		</div>
 	{/if}
 {:else if children}
@@ -99,101 +118,73 @@
 		align-items: center;
 		justify-content: center;
 		min-height: 400px;
-		padding: 2rem;
+		padding: var(--spacing-xl);
 	}
 
 	.error-container {
 		max-width: 600px;
+		width: 100%;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: var(--spacing-lg);
 		text-align: center;
-		background: var(--bg-secondary, #1a1a1a);
-		border: 1px solid var(--border, #333);
-		border-radius: 8px;
-		padding: 3rem 2rem;
 	}
 
 	.error-icon {
 		font-size: 4rem;
-		margin-bottom: 1rem;
 	}
 
 	h2 {
-		font-size: 1.75rem;
-		font-weight: 600;
-		color: var(--text-primary, #e0e0e0);
-		margin: 0 0 1rem 0;
-	}
-
-	.error-message {
-		font-size: 1rem;
-		color: var(--text-secondary, #9ca3af);
-		margin: 0 0 2rem 0;
-		line-height: 1.6;
+		font-family: var(--font-family-heading);
+		font-size: 2rem;
+		font-weight: 300;
+		color: var(--color-text-primary);
+		margin: 0;
+		letter-spacing: 0.02em;
 	}
 
 	.error-details {
+		width: 100%;
+		margin-top: var(--spacing-md);
 		text-align: left;
-		margin-bottom: 1.5rem;
-		background: var(--bg-primary, #0a0a0a);
-		border: 1px solid var(--border, #333);
-		border-radius: 4px;
-		padding: 1rem;
 	}
 
 	.error-details summary {
 		cursor: pointer;
-		font-size: 0.875rem;
-		font-weight: 600;
-		color: var(--text-secondary, #9ca3af);
-		margin-bottom: 0.5rem;
+		font-weight: 500;
+		color: var(--color-text-secondary);
+		padding: var(--spacing-sm);
 		user-select: none;
 	}
 
 	.error-details summary:hover {
-		color: var(--accent, #fb923c);
+		color: var(--color-brass);
 	}
 
 	.error-stack {
+		margin-top: var(--spacing-md);
+		padding: var(--spacing-md);
+		background-color: var(--color-surface-2);
+		border-radius: var(--radius-md);
+		font-family: var(--font-family-mono);
 		font-size: 0.75rem;
-		color: var(--text-tertiary, #6b7280);
+		color: var(--color-text-secondary);
 		overflow-x: auto;
 		white-space: pre-wrap;
 		word-break: break-word;
-		margin: 0.5rem 0 0 0;
 	}
 
 	.error-actions {
 		display: flex;
-		gap: 1rem;
-		justify-content: center;
+		gap: var(--spacing-md);
+		margin-top: var(--spacing-md);
 	}
 
-	.btn-retry,
-	.btn-reload {
-		padding: 0.75rem 1.5rem;
-		border: none;
-		border-radius: 4px;
-		font-size: 0.875rem;
-		font-weight: 600;
-		cursor: pointer;
-		transition: all 0.2s;
-	}
-
-	.btn-retry {
-		background: var(--accent, #fb923c);
-		color: #000;
-	}
-
-	.btn-retry:hover {
-		background: #f97316;
-	}
-
-	.btn-reload {
-		background: var(--bg-tertiary, #2a2a2a);
-		color: var(--text-primary, #e0e0e0);
-		border: 1px solid var(--border, #333);
-	}
-
-	.btn-reload:hover {
-		background: var(--bg-primary, #0a0a0a);
+	.error-id {
+		font-size: 0.75rem;
+		color: var(--color-text-tertiary);
+		font-family: var(--font-family-mono);
+		margin: 0;
 	}
 </style>

@@ -1,535 +1,441 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
-	import { tokenManager } from '$lib/api/auth';
-	import { forgeAgentsClient } from '$lib/api/forgeAgentsClient';
-	import { ErrorBoundary } from '$lib/components';
+  import { onMount } from 'svelte';
+  import { tokenManager } from '$lib/api/auth';
+  import { forgeAgentsClient } from '$lib/api/forgeAgentsClient';
+  import { Panel, Input, Button, Alert, Badge, Select } from '$lib/components';
 
-	let apiBaseUrl = 'http://localhost:3000';
-	let apiTimeout = 30000;
-	let isAuthenticated = false;
-	let tokenExpiresAt: string | null = null;
+  let apiBaseUrl = 'http://localhost:3000';
+  let apiTimeout = 30000;
+  let isAuthenticated = false;
+  let tokenExpiresAt: string | null = null;
 
-	// Login form
-	let showLoginForm = false;
-	let loginEmail = '';
-	let loginPassword = '';
-	let loginError = '';
-	let loginLoading = false;
+  // Login form
+  let showLoginForm = false;
+  let loginEmail = '';
+  let loginPassword = '';
+  let loginError = '';
+  let loginLoading = false;
 
-	// Settings state
-	let saveSuccess = false;
-	let saveError = '';
+  // Settings state
+  let saveSuccess = false;
+  let saveError = '';
 
-	onMount(async () => {
-		await tokenManager.initialize();
-		isAuthenticated = tokenManager.isAuthenticated();
+  // Timeout options for select
+  const timeoutOptions = [
+    { value: 5000, label: '5 seconds' },
+    { value: 10000, label: '10 seconds' },
+    { value: 15000, label: '15 seconds' },
+    { value: 30000, label: '30 seconds' },
+    { value: 60000, label: '60 seconds' },
+    { value: 120000, label: '120 seconds' }
+  ];
 
-		// Load token expiry if authenticated
-		if (isAuthenticated) {
-			const expiresAt = localStorage.getItem('token_expires_at');
-			if (expiresAt) {
-				tokenExpiresAt = new Date(expiresAt).toLocaleString();
-			}
-		}
+  onMount(async () => {
+    await tokenManager.initialize();
+    isAuthenticated = tokenManager.isAuthenticated();
 
-		// Load saved settings from localStorage
-		const savedApiUrl = localStorage.getItem('api_base_url');
-		if (savedApiUrl) apiBaseUrl = savedApiUrl;
+    // Load token expiry if authenticated
+    if (isAuthenticated) {
+      const expiresAt = localStorage.getItem('token_expires_at');
+      if (expiresAt) {
+        tokenExpiresAt = new Date(expiresAt).toLocaleString();
+      }
+    }
 
-		const savedTimeout = localStorage.getItem('api_timeout');
-		if (savedTimeout) apiTimeout = parseInt(savedTimeout, 10);
-	});
+    // Load saved settings from localStorage
+    const savedApiUrl = localStorage.getItem('api_base_url');
+    if (savedApiUrl) apiBaseUrl = savedApiUrl;
 
-	async function handleLogin() {
-		loginError = '';
-		loginLoading = true;
+    const savedTimeout = localStorage.getItem('api_timeout');
+    if (savedTimeout) apiTimeout = parseInt(savedTimeout, 10);
+  });
 
-		try {
-			await forgeAgentsClient.login(loginEmail, loginPassword);
-			isAuthenticated = true;
-			showLoginForm = false;
-			loginEmail = '';
-			loginPassword = '';
+  async function handleLogin() {
+    loginError = '';
+    loginLoading = true;
 
-			// Update token expiry display
-			const expiresAt = localStorage.getItem('token_expires_at');
-			if (expiresAt) {
-				tokenExpiresAt = new Date(expiresAt).toLocaleString();
-			}
-		} catch (error: any) {
-			loginError = error.message || 'Login failed';
-		} finally {
-			loginLoading = false;
-		}
-	}
+    try {
+      await forgeAgentsClient.login(loginEmail, loginPassword);
+      isAuthenticated = true;
+      showLoginForm = false;
+      loginEmail = '';
+      loginPassword = '';
 
-	async function handleLogout() {
-		try {
-			await forgeAgentsClient.logout();
-			isAuthenticated = false;
-			tokenExpiresAt = null;
-		} catch (error) {
-			console.error('Logout error:', error);
-		}
-	}
+      // Update token expiry display
+      const expiresAt = localStorage.getItem('token_expires_at');
+      if (expiresAt) {
+        tokenExpiresAt = new Date(expiresAt).toLocaleString();
+      }
+    } catch (error: any) {
+      loginError = error.message || 'Login failed';
+    } finally {
+      loginLoading = false;
+    }
+  }
 
-	function saveSettings() {
-		saveSuccess = false;
-		saveError = '';
+  async function handleLogout() {
+    try {
+      await forgeAgentsClient.logout();
+      isAuthenticated = false;
+      tokenExpiresAt = null;
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
+  }
 
-		try {
-			localStorage.setItem('api_base_url', apiBaseUrl);
-			localStorage.setItem('api_timeout', apiTimeout.toString());
-			saveSuccess = true;
+  function saveSettings() {
+    saveSuccess = false;
+    saveError = '';
 
-			// Clear success message after 3s
-			setTimeout(() => {
-				saveSuccess = false;
-			}, 3000);
-		} catch (error: any) {
-			saveError = error.message || 'Failed to save settings';
-		}
-	}
+    try {
+      localStorage.setItem('api_base_url', apiBaseUrl);
+      localStorage.setItem('api_timeout', apiTimeout.toString());
+      saveSuccess = true;
 
-	function resetSettings() {
-		apiBaseUrl = 'http://localhost:3000';
-		apiTimeout = 30000;
-		localStorage.removeItem('api_base_url');
-		localStorage.removeItem('api_timeout');
-		saveSuccess = true;
-		setTimeout(() => {
-			saveSuccess = false;
-		}, 3000);
-	}
+      // Clear success message after 3s
+      setTimeout(() => {
+        saveSuccess = false;
+      }, 3000);
+    } catch (error: any) {
+      saveError = error.message || 'Failed to save settings';
+    }
+  }
+
+  function resetSettings() {
+    apiBaseUrl = 'http://localhost:3000';
+    apiTimeout = 30000;
+    localStorage.removeItem('api_base_url');
+    localStorage.removeItem('api_timeout');
+    saveSuccess = true;
+    setTimeout(() => {
+      saveSuccess = false;
+    }, 3000);
+  }
 </script>
 
-<ErrorBoundary>
 <div class="settings-container">
-	<div class="settings-header">
-		<h1>Settings</h1>
-		<p class="settings-subtitle">Configure your VibeForge_BDS application</p>
-	</div>
+  <!-- Page Header -->
+  <div class="page-header">
+    <h1 class="page-title">Settings</h1>
+    <p class="page-description">Configure your VibeForge_BDS application</p>
+  </div>
 
-	<!-- API Configuration Section -->
-	<section class="settings-section">
-		<h2>API Configuration</h2>
-		<p class="section-description">
-			Configure the ForgeAgents API endpoint and connection settings.
-		</p>
+  <!-- API Configuration Section -->
+  <Panel title="API Configuration" subtitle="Configure the ForgeAgents API endpoint and connection settings" variant="bordered" padding="lg">
+    <div class="form-section">
+      <Input
+        label="API Base URL"
+        bind:value={apiBaseUrl}
+        placeholder="http://localhost:3000"
+        helperText="The base URL for the ForgeAgents 120-skill API"
+        fullWidth
+      />
 
-		<div class="form-group">
-			<label for="api-url">API Base URL</label>
-			<input
-				id="api-url"
-				type="text"
-				bind:value={apiBaseUrl}
-				placeholder="http://localhost:3000"
-				class="input"
-			/>
-			<span class="field-hint">The base URL for the ForgeAgents 120-skill API</span>
-		</div>
+      <Select
+        label="Request Timeout"
+        bind:value={apiTimeout}
+        options={timeoutOptions}
+        helperText="Maximum time to wait for API responses"
+        fullWidth
+      />
 
-		<div class="form-group">
-			<label for="api-timeout">Request Timeout (ms)</label>
-			<input
-				id="api-timeout"
-				type="number"
-				bind:value={apiTimeout}
-				min="5000"
-				max="120000"
-				step="1000"
-				class="input"
-			/>
-			<span class="field-hint">Maximum time to wait for API responses (5-120 seconds)</span>
-		</div>
+      <div class="button-group">
+        <Button variant="primary" on:click={saveSettings}>Save Settings</Button>
+        <Button variant="secondary" on:click={resetSettings}>Reset to Defaults</Button>
+      </div>
 
-		<div class="button-group">
-			<button onclick={saveSettings} class="btn btn-primary">Save Settings</button>
-			<button onclick={resetSettings} class="btn btn-secondary">Reset to Defaults</button>
-		</div>
+      {#if saveSuccess}
+        <Alert variant="success" dismissible on:dismiss={() => (saveSuccess = false)}>
+          Settings saved successfully!
+        </Alert>
+      {/if}
+      {#if saveError}
+        <Alert variant="error" dismissible on:dismiss={() => (saveError = '')}>
+          {saveError}
+        </Alert>
+      {/if}
+    </div>
+  </Panel>
 
-		{#if saveSuccess}
-			<div class="alert alert-success">Settings saved successfully!</div>
-		{/if}
-		{#if saveError}
-			<div class="alert alert-error">{saveError}</div>
-		{/if}
-	</section>
+  <!-- Authentication Section -->
+  <Panel title="Authentication" subtitle="Manage your BDS credentials and session" variant="bordered" padding="lg">
+    <div class="auth-section">
+      {#if isAuthenticated}
+        <div class="status-row">
+          <div class="status-indicator">
+            <Badge variant="success" dot>Connected</Badge>
+          </div>
+          {#if tokenExpiresAt}
+            <p class="auth-info">Token expires: {tokenExpiresAt}</p>
+          {/if}
+        </div>
 
-	<!-- Authentication Section -->
-	<section class="settings-section">
-		<h2>Authentication</h2>
-		<p class="section-description">Manage your BDS credentials and session.</p>
+        <Button variant="danger" on:click={handleLogout}>Logout</Button>
+      {:else}
+        <div class="status-row">
+          <Badge variant="error" dot>Disconnected</Badge>
+        </div>
 
-		{#if isAuthenticated}
-			<div class="auth-status">
-				<div class="status-indicator status-connected">
-					<span class="status-dot"></span>
-					<span>Connected</span>
-				</div>
-				{#if tokenExpiresAt}
-					<p class="auth-info">Token expires: {tokenExpiresAt}</p>
-				{/if}
-			</div>
+        {#if !showLoginForm}
+          <Button variant="primary" on:click={() => (showLoginForm = true)}>
+            Login to BDS
+          </Button>
+        {:else}
+          <Panel variant="elevated" padding="lg">
+            <div class="login-form">
+              <Input
+                label="Email"
+                type="email"
+                bind:value={loginEmail}
+                placeholder="your@email.com"
+                required
+                fullWidth
+              />
 
-			<button onclick={handleLogout} class="btn btn-danger">Logout</button>
-		{:else}
-			<div class="auth-status">
-				<div class="status-indicator status-disconnected">
-					<span class="status-dot"></span>
-					<span>Disconnected</span>
-				</div>
-			</div>
+              <Input
+                label="Password"
+                type="password"
+                bind:value={loginPassword}
+                placeholder="••••••••"
+                required
+                fullWidth
+              />
 
-			{#if !showLoginForm}
-				<button onclick={() => (showLoginForm = true)} class="btn btn-primary"
-					>Login to BDS</button
-				>
-			{:else}
-				<div class="login-form">
-					<div class="form-group">
-						<label for="login-email">Email</label>
-						<input
-							id="login-email"
-							type="email"
-							bind:value={loginEmail}
-							placeholder="your@email.com"
-							class="input"
-						/>
-					</div>
+              {#if loginError}
+                <Alert variant="error">{loginError}</Alert>
+              {/if}
 
-					<div class="form-group">
-						<label for="login-password">Password</label>
-						<input
-							id="login-password"
-							type="password"
-							bind:value={loginPassword}
-							placeholder="••••••••"
-							class="input"
-						/>
-					</div>
+              <div class="button-group">
+                <Button variant="primary" loading={loginLoading} on:click={handleLogin}>
+                  Login
+                </Button>
+                <Button variant="ghost" on:click={() => (showLoginForm = false)}>
+                  Cancel
+                </Button>
+              </div>
+            </div>
+          </Panel>
+        {/if}
+      {/if}
+    </div>
+  </Panel>
 
-					{#if loginError}
-						<div class="alert alert-error">{loginError}</div>
-					{/if}
+  <!-- About Section -->
+  <Panel title="About" subtitle="System information and version details" variant="bordered" padding="lg">
+    <div class="info-grid">
+      <div class="info-card">
+        <div class="info-label">Application</div>
+        <div class="info-value">VibeForge_BDS</div>
+      </div>
+      <div class="info-card">
+        <div class="info-label">Version</div>
+        <div class="info-value">
+          <Badge variant="accent">v0.1.0</Badge>
+        </div>
+      </div>
+      <div class="info-card">
+        <div class="info-label">Contract Version</div>
+        <div class="info-value">FORGE_GLOBAL_EXECUTION_CONTRACT v1.0</div>
+      </div>
+      <div class="info-card">
+        <div class="info-label">Access Level</div>
+        <div class="info-value">
+          <Badge variant="warning">BDS Only (Internal)</Badge>
+        </div>
+      </div>
+      <div class="info-card">
+        <div class="info-label">Total Skills</div>
+        <div class="info-value">120 (45 PUBLIC + 75 BDS_ONLY)</div>
+      </div>
+      <div class="info-card">
+        <div class="info-label">Backend</div>
+        <div class="info-value">ForgeAgents 120-Skill API</div>
+      </div>
+    </div>
+  </Panel>
 
-					<div class="button-group">
-						<button onclick={handleLogin} disabled={loginLoading} class="btn btn-primary">
-							{loginLoading ? 'Logging in...' : 'Login'}
-						</button>
-						<button onclick={() => (showLoginForm = false)} class="btn btn-secondary"
-							>Cancel</button
-						>
-					</div>
-				</div>
-			{/if}
-		{/if}
-	</section>
-
-	<!-- About Section -->
-	<section class="settings-section">
-		<h2>About</h2>
-		<p class="section-description">System information and version details.</p>
-
-		<div class="info-grid">
-			<div class="info-item">
-				<span class="info-label">Application</span>
-				<span class="info-value">VibeForge_BDS</span>
-			</div>
-			<div class="info-item">
-				<span class="info-label">Version</span>
-				<span class="info-value">v0.1.0</span>
-			</div>
-			<div class="info-item">
-				<span class="info-label">Contract Version</span>
-				<span class="info-value">FORGE_GLOBAL_EXECUTION_CONTRACT v1.0</span>
-			</div>
-			<div class="info-item">
-				<span class="info-label">Access Level</span>
-				<span class="info-value">BDS Only (Internal)</span>
-			</div>
-			<div class="info-item">
-				<span class="info-label">Total Skills</span>
-				<span class="info-value">120 (45 PUBLIC + 75 BDS_ONLY)</span>
-			</div>
-			<div class="info-item">
-				<span class="info-label">Backend</span>
-				<span class="info-value">ForgeAgents 120-Skill API</span>
-			</div>
-		</div>
-	</section>
-
-	<!-- System Information Section -->
-	<section class="settings-section">
-		<h2>System Components</h2>
-		<p class="section-description">Integrated ForgeAgents infrastructure systems.</p>
-
-		<ul class="component-list">
-			<li>
-				<strong>MAPO:</strong> Multi-step orchestration pipeline
-			</li>
-			<li>
-				<strong>NeuroForge:</strong> Model routing and champion selection
-			</li>
-			<li>
-				<strong>DataForge:</strong> Data persistence layer
-			</li>
-			<li>
-				<strong>Token Management:</strong> Auto-refresh with 60s buffer
-			</li>
-			<li>
-				<strong>Storage:</strong> Tauri secure token storage
-			</li>
-		</ul>
-	</section>
+  <!-- System Components Section -->
+  <Panel title="System Components" subtitle="Integrated ForgeAgents infrastructure systems" variant="bordered" padding="lg">
+    <div class="component-list">
+      <div class="component-item">
+        <Badge variant="info" size="sm">MAPO</Badge>
+        <span class="component-desc">Multi-step orchestration pipeline</span>
+      </div>
+      <div class="component-item">
+        <Badge variant="info" size="sm">NeuroForge</Badge>
+        <span class="component-desc">Model routing and champion selection</span>
+      </div>
+      <div class="component-item">
+        <Badge variant="info" size="sm">DataForge</Badge>
+        <span class="component-desc">Data persistence layer</span>
+      </div>
+      <div class="component-item">
+        <Badge variant="success" size="sm">Token Management</Badge>
+        <span class="component-desc">Auto-refresh with 60s buffer</span>
+      </div>
+      <div class="component-item">
+        <Badge variant="success" size="sm">Storage</Badge>
+        <span class="component-desc">Tauri secure token storage</span>
+      </div>
+    </div>
+  </Panel>
 </div>
-</ErrorBoundary>
 
 <style>
-	.settings-container {
-		max-width: 900px;
-		margin: 0 auto;
-		padding: 2rem;
-	}
+  /* ═══════════════════════════════════════════════════════════════════════
+     Settings Container
+     ═══════════════════════════════════════════════════════════════════════ */
 
-	.settings-header {
-		margin-bottom: 3rem;
-	}
+  .settings-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xl);
+  }
 
-	h1 {
-		font-size: 2.5rem;
-		font-weight: 700;
-		color: var(--accent, #fb923c);
-		margin: 0 0 0.5rem 0;
-	}
+  /* Page Header */
+  .page-header {
+    margin-bottom: var(--spacing-lg);
+  }
 
-	.settings-subtitle {
-		font-size: 1rem;
-		color: var(--text-secondary, #9ca3af);
-		margin: 0;
-	}
+  .page-title {
+    font-family: var(--font-family-heading);
+    font-size: 2.5rem;
+    font-weight: 300;
+    color: var(--color-text-primary);
+    margin: 0 0 var(--spacing-sm) 0;
+    letter-spacing: 0.02em;
+  }
 
-	.settings-section {
-		background: var(--bg-secondary, #1a1a1a);
-		border: 1px solid var(--border, #333);
-		border-radius: 8px;
-		padding: 2rem;
-		margin-bottom: 2rem;
-	}
+  .page-description {
+    font-size: 1.125rem;
+    color: var(--color-text-tertiary);
+    margin: 0;
+  }
 
-	.settings-section h2 {
-		font-size: 1.5rem;
-		font-weight: 600;
-		color: var(--text-primary, #e0e0e0);
-		margin: 0 0 0.5rem 0;
-	}
+  /* Form Section */
+  .form-section {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-lg);
+  }
 
-	.section-description {
-		font-size: 0.875rem;
-		color: var(--text-secondary, #9ca3af);
-		margin: 0 0 1.5rem 0;
-	}
+  .button-group {
+    display: flex;
+    gap: var(--spacing-md);
+    flex-wrap: wrap;
+  }
 
-	.form-group {
-		margin-bottom: 1.5rem;
-	}
+  /* Auth Section */
+  .auth-section {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-lg);
+  }
 
-	.form-group label {
-		display: block;
-		font-size: 0.875rem;
-		font-weight: 600;
-		color: var(--text-primary, #e0e0e0);
-		margin-bottom: 0.5rem;
-	}
+  .status-row {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+  }
 
-	.input {
-		width: 100%;
-		padding: 0.75rem;
-		background: var(--bg-primary, #0a0a0a);
-		border: 1px solid var(--border, #333);
-		border-radius: 4px;
-		color: var(--text-primary, #e0e0e0);
-		font-size: 0.875rem;
-		font-family: inherit;
-	}
+  .status-indicator {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+  }
 
-	.input:focus {
-		outline: none;
-		border-color: var(--accent, #fb923c);
-	}
+  .auth-info {
+    font-size: 0.875rem;
+    color: var(--color-text-tertiary);
+    font-family: var(--font-family-mono);
+    margin: 0;
+  }
 
-	.field-hint {
-		display: block;
-		font-size: 0.75rem;
-		color: var(--text-tertiary, #6b7280);
-		margin-top: 0.25rem;
-	}
+  .login-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-lg);
+  }
 
-	.button-group {
-		display: flex;
-		gap: 1rem;
-		margin-top: 1.5rem;
-	}
+  /* Info Grid */
+  .info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: var(--spacing-md);
+  }
 
-	.btn {
-		padding: 0.75rem 1.5rem;
-		border: none;
-		border-radius: 4px;
-		font-size: 0.875rem;
-		font-weight: 600;
-		cursor: pointer;
-		transition: all 0.2s;
-	}
+  .info-card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+    padding: var(--spacing-md);
+    background-color: var(--color-surface-3);
+    border-radius: var(--radius-md);
+    transition: background-color var(--transition-fast);
+  }
 
-	.btn-primary {
-		background: var(--accent, #fb923c);
-		color: #000;
-	}
+  .info-card:hover {
+    background-color: var(--color-surface-elevated);
+  }
 
-	.btn-primary:hover {
-		background: #f97316;
-	}
+  .info-label {
+    font-size: 0.75rem;
+    color: var(--color-text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
 
-	.btn-primary:disabled {
-		opacity: 0.5;
-		cursor: not-allowed;
-	}
+  .info-value {
+    font-size: 0.9375rem;
+    color: var(--color-text-primary);
+    font-weight: 500;
+  }
 
-	.btn-secondary {
-		background: var(--bg-tertiary, #2a2a2a);
-		color: var(--text-primary, #e0e0e0);
-		border: 1px solid var(--border, #333);
-	}
+  /* Component List */
+  .component-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+  }
 
-	.btn-secondary:hover {
-		background: var(--bg-primary, #0a0a0a);
-	}
+  .component-item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    padding: var(--spacing-md);
+    background-color: var(--color-surface-3);
+    border-radius: var(--radius-md);
+    transition: all var(--transition-fast);
+  }
 
-	.btn-danger {
-		background: #dc2626;
-		color: white;
-	}
+  .component-item:hover {
+    background-color: var(--color-surface-elevated);
+    transform: translateX(4px);
+  }
 
-	.btn-danger:hover {
-		background: #b91c1c;
-	}
+  .component-desc {
+    font-size: 0.875rem;
+    color: var(--color-text-secondary);
+  }
 
-	.alert {
-		padding: 0.75rem 1rem;
-		border-radius: 4px;
-		margin-top: 1rem;
-		font-size: 0.875rem;
-	}
+  /* Responsive */
+  @media (max-width: 768px) {
+    .page-title {
+      font-size: 2rem;
+    }
 
-	.alert-success {
-		background: rgba(34, 197, 94, 0.1);
-		border: 1px solid rgba(34, 197, 94, 0.3);
-		color: #22c55e;
-	}
+    .info-grid {
+      grid-template-columns: 1fr;
+    }
 
-	.alert-error {
-		background: rgba(239, 68, 68, 0.1);
-		border: 1px solid rgba(239, 68, 68, 0.3);
-		color: #ef4444;
-	}
+    .button-group {
+      flex-direction: column;
+    }
 
-	.auth-status {
-		margin-bottom: 1.5rem;
-	}
-
-	.status-indicator {
-		display: flex;
-		align-items: center;
-		gap: 0.5rem;
-		font-size: 0.875rem;
-		font-weight: 600;
-		margin-bottom: 0.5rem;
-	}
-
-	.status-dot {
-		width: 10px;
-		height: 10px;
-		border-radius: 50%;
-	}
-
-	.status-connected {
-		color: #22c55e;
-	}
-
-	.status-connected .status-dot {
-		background: #22c55e;
-	}
-
-	.status-disconnected {
-		color: #ef4444;
-	}
-
-	.status-disconnected .status-dot {
-		background: #ef4444;
-	}
-
-	.auth-info {
-		font-size: 0.75rem;
-		color: var(--text-tertiary, #6b7280);
-		margin: 0;
-	}
-
-	.login-form {
-		background: var(--bg-primary, #0a0a0a);
-		padding: 1.5rem;
-		border-radius: 4px;
-		border: 1px solid var(--border, #333);
-		margin-bottom: 1rem;
-	}
-
-	.info-grid {
-		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-		gap: 1rem;
-	}
-
-	.info-item {
-		display: flex;
-		flex-direction: column;
-		gap: 0.25rem;
-		padding: 1rem;
-		background: var(--bg-primary, #0a0a0a);
-		border: 1px solid var(--border, #333);
-		border-radius: 4px;
-	}
-
-	.info-label {
-		font-size: 0.75rem;
-		color: var(--text-tertiary, #6b7280);
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-	}
-
-	.info-value {
-		font-size: 0.875rem;
-		color: var(--text-primary, #e0e0e0);
-		font-weight: 600;
-	}
-
-	.component-list {
-		list-style: none;
-		padding: 0;
-		margin: 0;
-		display: grid;
-		gap: 0.75rem;
-	}
-
-	.component-list li {
-		padding: 1rem;
-		background: var(--bg-primary, #0a0a0a);
-		border: 1px solid var(--border, #333);
-		border-radius: 4px;
-		font-size: 0.875rem;
-		color: var(--text-secondary, #9ca3af);
-	}
-
-	.component-list strong {
-		color: var(--accent, #fb923c);
-		font-weight: 600;
-	}
+    .button-group :global(button) {
+      width: 100%;
+    }
+  }
 </style>
