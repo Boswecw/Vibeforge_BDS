@@ -42,6 +42,7 @@ declare module '$env/static/private' {
 	export const CLAUDE_AGENT_SDK_VERSION: string;
 	export const SHLVL: string;
 	export const HOME: string;
+	export const OLDPWD: string;
 	export const VITE_DATAFORGE_API_BASE: string;
 	export const NVM_BIN: string;
 	export const VSCODE_IPC_HOOK_CLI: string;
@@ -149,6 +150,7 @@ declare module '$env/dynamic/private' {
 		CLAUDE_AGENT_SDK_VERSION: string;
 		SHLVL: string;
 		HOME: string;
+		OLDPWD: string;
 		VITE_DATAFORGE_API_BASE: string;
 		NVM_BIN: string;
 		VSCODE_IPC_HOOK_CLI: string;
