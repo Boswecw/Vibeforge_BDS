@@ -215,6 +215,7 @@ pnpm tauri:build
 - [x] History page - Execution logs with search, filters, pagination (720 lines)
 - [x] Settings page - API config, auth management, system info (615 lines)
 - [x] Error handling system - 3 components for comprehensive error management (510 lines)
+- [x] Error boundary integration - All major pages wrapped with ErrorBoundary
 - [x] Fix all 8 accessibility warnings - 100% clean build
 - [x] Keyboard navigation and ARIA roles
 - [x] LocalStorage persistence for settings and history
@@ -225,7 +226,6 @@ pnpm tauri:build
 #### High Priority
 - [ ] E2E tests with backend integration
 - [ ] Desktop app packaging and distribution (Tauri build)
-- [ ] Integrate error boundaries into all pages
 
 #### Medium Priority
 - [ ] Loading state refinements and skeleton screens
