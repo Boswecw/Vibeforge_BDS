@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import '../app.css';
-  import { Sidebar, Header, ErrorBoundary, ErrorNotifications } from '$lib/components';
+  import { Sidebar, Header, ErrorBoundary, ErrorNotifications, CommandPalette } from '$lib/components';
   import OfflineBanner from '$lib/components/OfflineBanner.svelte';
   import UpdateBanner from '$lib/components/UpdateBanner.svelte';
   import { registerServiceWorker, setupOnlineOfflineListeners } from '$lib/utils/serviceWorker';
@@ -25,6 +25,9 @@
 
 <!-- VibeForge_BDS Layout Structure -->
 <ErrorBoundary showDetails={showErrorDetails}>
+  <!-- Command Palette (Cmd+K / Ctrl+K) -->
+  <CommandPalette />
+
   <!-- Update Banner (new version available) -->
   <UpdateBanner />
 
