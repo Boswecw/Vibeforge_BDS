@@ -26,6 +26,9 @@
  * ```
  */
 declare module '$env/static/private' {
+	export const VITE_FORGE_AGENTS_BASE_URL: string;
+	export const VITE_DATAFORGE_BASE_URL: string;
+	export const VITE_NEUROFORGE_BASE_URL: string;
 	export const VSCODE_CWD: string;
 	export const VSCODE_ESM_ENTRYPOINT: string;
 	export const USER: string;
@@ -126,6 +129,9 @@ declare module '$env/static/public' {
  */
 declare module '$env/dynamic/private' {
 	export const env: {
+		VITE_FORGE_AGENTS_BASE_URL: string;
+		VITE_DATAFORGE_BASE_URL: string;
+		VITE_NEUROFORGE_BASE_URL: string;
 		VSCODE_CWD: string;
 		VSCODE_ESM_ENTRYPOINT: string;
 		USER: string;
