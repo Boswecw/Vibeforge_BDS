@@ -1,1 +1,1 @@
-import{B as r,C as e,D as o,E as s}from"./chunks/vendor.js";export{r as command,e as form,o as prerender,s as query};
+import{h as r,i as e,j as s,q as o}from"./chunks/vendor-sveltekit.js";export{r as command,e as form,s as prerender,o as query};

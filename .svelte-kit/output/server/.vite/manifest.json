@@ -5,7 +5,7 @@
     "src": ".svelte-kit/generated/server/internal.js",
     "isEntry": true,
     "imports": [
-      "_vendor.js"
+      "_vendor-sveltekit.js"
     ]
   },
   "_Alert.BjsHp1bl.css": {
@@ -16,7 +16,7 @@
     "file": "chunks/Alert.js",
     "name": "Alert",
     "imports": [
-      "_vendor.js"
+      "_vendor-svelte.js"
     ],
     "css": [
       "_app/immutable/assets/Alert.BjsHp1bl.css"
@@ -30,7 +30,7 @@
     "file": "chunks/Badge.js",
     "name": "Badge",
     "imports": [
-      "_vendor.js"
+      "_vendor-svelte.js"
     ],
     "css": [
       "_app/immutable/assets/Badge.D4J2QL7C.css"
@@ -44,7 +44,7 @@
     "file": "chunks/Button.js",
     "name": "Button",
     "imports": [
-      "_vendor.js"
+      "_vendor-svelte.js"
     ],
     "css": [
       "_app/immutable/assets/Button.BO1Hmb9p.css"
@@ -58,7 +58,7 @@
     "file": "chunks/ErrorBoundary.js",
     "name": "ErrorBoundary",
     "imports": [
-      "_vendor.js",
+      "_vendor-svelte.js",
       "_errors.js",
       "_Panel.js",
       "_Alert.js",
@@ -76,7 +76,7 @@
     "file": "chunks/Input.js",
     "name": "Input",
     "imports": [
-      "_vendor.js"
+      "_vendor-svelte.js"
     ],
     "css": [
       "_app/immutable/assets/Input.1_LQljdb.css"
@@ -90,7 +90,7 @@
     "file": "chunks/Panel.js",
     "name": "Panel",
     "imports": [
-      "_vendor.js"
+      "_vendor-svelte.js"
     ],
     "css": [
       "_app/immutable/assets/Panel.Clt-M0I4.css"
@@ -104,7 +104,7 @@
     "file": "chunks/Select.js",
     "name": "Select",
     "imports": [
-      "_vendor.js"
+      "_vendor-svelte.js"
     ],
     "css": [
       "_app/immutable/assets/Select.C8AgKphl.css"
@@ -118,9 +118,24 @@
     "file": "chunks/templates.js",
     "name": "templates"
   },
-  "_vendor.js": {
-    "file": "chunks/vendor.js",
-    "name": "vendor"
+  "_vendor-common.js": {
+    "file": "chunks/vendor-common.js",
+    "name": "vendor-common"
+  },
+  "_vendor-svelte.js": {
+    "file": "chunks/vendor-svelte.js",
+    "name": "vendor-svelte",
+    "imports": [
+      "_vendor-common.js"
+    ]
+  },
+  "_vendor-sveltekit.js": {
+    "file": "chunks/vendor-sveltekit.js",
+    "name": "vendor-sveltekit",
+    "imports": [
+      "_vendor-common.js",
+      "_vendor-svelte.js"
+    ]
   },
   "node_modules/.pnpm/@sveltejs+kit@2.49.1_@sveltejs+vite-plugin-svelte@6.2.1_svelte@5.45.6_vite@6.4.1_@types_44a92fb33a20a3326dd3dbcbaa974c46/node_modules/@sveltejs/kit/src/runtime/app/server/remote/index.js": {
     "file": "remote-entry.js",
@@ -128,7 +143,7 @@
     "src": "node_modules/.pnpm/@sveltejs+kit@2.49.1_@sveltejs+vite-plugin-svelte@6.2.1_svelte@5.45.6_vite@6.4.1_@types_44a92fb33a20a3326dd3dbcbaa974c46/node_modules/@sveltejs/kit/src/runtime/app/server/remote/index.js",
     "isEntry": true,
     "imports": [
-      "_vendor.js"
+      "_vendor-sveltekit.js"
     ]
   },
   "node_modules/.pnpm/@sveltejs+kit@2.49.1_@sveltejs+vite-plugin-svelte@6.2.1_svelte@5.45.6_vite@6.4.1_@types_44a92fb33a20a3326dd3dbcbaa974c46/node_modules/@sveltejs/kit/src/runtime/server/index.js": {
@@ -137,7 +152,7 @@
     "src": "node_modules/.pnpm/@sveltejs+kit@2.49.1_@sveltejs+vite-plugin-svelte@6.2.1_svelte@5.45.6_vite@6.4.1_@types_44a92fb33a20a3326dd3dbcbaa974c46/node_modules/@sveltejs/kit/src/runtime/server/index.js",
     "isEntry": true,
     "imports": [
-      "_vendor.js"
+      "_vendor-sveltekit.js"
     ]
   },
   "src/lib/components/charts/BarChart.svelte": {
@@ -146,7 +161,7 @@
     "src": "src/lib/components/charts/BarChart.svelte",
     "isDynamicEntry": true,
     "imports": [
-      "_vendor.js"
+      "_vendor-svelte.js"
     ],
     "css": [
       "_app/immutable/assets/BarChart.CDyFXi3S.css"
@@ -158,7 +173,7 @@
     "src": "src/lib/components/charts/LineChart.svelte",
     "isDynamicEntry": true,
     "imports": [
-      "_vendor.js"
+      "_vendor-svelte.js"
     ],
     "css": [
       "_app/immutable/assets/LineChart.Barpiufm.css"
@@ -170,7 +185,8 @@
     "src": "src/routes/+error.svelte",
     "isEntry": true,
     "imports": [
-      "_vendor.js"
+      "_vendor-svelte.js",
+      "_vendor-sveltekit.js"
     ],
     "css": [
       "_app/immutable/assets/_error.CtGqOkU-.css"
@@ -182,15 +198,16 @@
     "src": "src/routes/+layout.svelte",
     "isEntry": true,
     "imports": [
-      "_vendor.js",
+      "_vendor-svelte.js",
       "_ErrorBoundary.js",
+      "_vendor-sveltekit.js",
       "_errors.js",
       "_Badge.js",
       "_Button.js",
       "_Alert.js"
     ],
     "css": [
-      "_app/immutable/assets/_layout.YC8V29J5.css"
+      "_app/immutable/assets/_layout.DH2as58N.css"
     ]
   },
   "src/routes/+page.svelte": {
@@ -201,7 +218,7 @@
     "imports": [
       "_Panel.js",
       "_Button.js",
-      "_vendor.js"
+      "_vendor-svelte.js"
     ],
     "css": [
       "_app/immutable/assets/_page.Cams23Aq.css"
@@ -213,7 +230,7 @@
     "src": "src/routes/admin/+page.svelte",
     "isEntry": true,
     "imports": [
-      "_vendor.js",
+      "_vendor-svelte.js",
       "_Panel.js",
       "_Badge.js",
       "_Input.js",
@@ -229,7 +246,7 @@
     "src": "src/routes/admin/agents/+page.svelte",
     "isEntry": true,
     "imports": [
-      "_vendor.js",
+      "_vendor-svelte.js",
       "_templates.js",
       "_Alert.js",
       "_Panel.js"
@@ -244,7 +261,7 @@
     "src": "src/routes/agents/+page.svelte",
     "isEntry": true,
     "imports": [
-      "_vendor.js",
+      "_vendor-svelte.js",
       "_templates.js",
       "_Panel.js",
       "_Input.js",
@@ -262,7 +279,7 @@
     "src": "src/routes/analytics/+page.svelte",
     "isEntry": true,
     "imports": [
-      "_vendor.js",
+      "_vendor-svelte.js",
       "_Select.js",
       "_Button.js",
       "_Panel.js",
@@ -282,7 +299,7 @@
     "src": "src/routes/architecture/+layout.svelte",
     "isEntry": true,
     "imports": [
-      "_vendor.js"
+      "_vendor-svelte.js"
     ],
     "css": [
       "_app/immutable/assets/_layout.xLs7X-AE.css"
@@ -294,7 +311,7 @@
     "src": "src/routes/architecture/+page.svelte",
     "isEntry": true,
     "imports": [
-      "_vendor.js"
+      "_vendor-svelte.js"
     ],
     "css": [
       "_app/immutable/assets/_page.BYUCFNZq.css"
@@ -349,7 +366,7 @@
       "_Panel.js",
       "_Input.js",
       "_Select.js",
-      "_vendor.js"
+      "_vendor-svelte.js"
     ],
     "css": [
       "_app/immutable/assets/_page.Dz_4ua7u.css"
@@ -366,7 +383,7 @@
       "_Select.js",
       "_Button.js",
       "_Badge.js",
-      "_vendor.js"
+      "_vendor-svelte.js"
     ],
     "css": [
       "_app/immutable/assets/_page.7_R3Rkri.css"
@@ -378,7 +395,8 @@
     "src": "src/routes/library/[id]/+page.svelte",
     "isEntry": true,
     "imports": [
-      "_vendor.js"
+      "_vendor-svelte.js",
+      "_vendor-sveltekit.js"
     ],
     "css": [
       "_app/immutable/assets/_page.P4BTJECW.css"
@@ -390,7 +408,7 @@
     "src": "src/routes/models/+page.svelte",
     "isEntry": true,
     "imports": [
-      "_vendor.js",
+      "_vendor-svelte.js",
       "_Panel.js",
       "_Input.js",
       "_Button.js",
@@ -410,7 +428,7 @@
       "_Panel.js",
       "_Button.js",
       "_Input.js",
-      "_vendor.js",
+      "_vendor-svelte.js",
       "_Alert.js"
     ],
     "css": [
@@ -439,7 +457,7 @@
     "src": "src/routes/test-api/+page.svelte",
     "isEntry": true,
     "imports": [
-      "_vendor.js",
+      "_vendor-svelte.js",
       "_errors.js",
       "_Button.js",
       "_Panel.js",
@@ -458,7 +476,7 @@
     "imports": [
       "_Panel.js",
       "_Button.js",
-      "_vendor.js"
+      "_vendor-svelte.js"
     ],
     "css": [
       "_app/immutable/assets/_page.DfyFUo1L.css"
@@ -470,7 +488,7 @@
     "src": "src/routes/workflows/+page.svelte",
     "isEntry": true,
     "imports": [
-      "_vendor.js",
+      "_vendor-svelte.js",
       "_Panel.js",
       "_Button.js",
       "_Badge.js"

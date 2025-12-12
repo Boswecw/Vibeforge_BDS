@@ -39,14 +39,57 @@ export default defineConfig({
 		rollupOptions: {
 			output: {
 				manualChunks(id) {
-					// Split Chart.js into its own chunk
+					// Granular code splitting for better caching
+
+					// Svelte framework (core + reactivity)
+					if (id.includes('node_modules/svelte/') || id.includes('svelte/src/runtime')) {
+						return 'vendor-svelte';
+					}
+
+					// SvelteKit router and framework
+					if (id.includes('@sveltejs/kit')) {
+						return 'vendor-sveltekit';
+					}
+
+					// Drag and drop library
+					if (id.includes('@dnd-kit')) {
+						return 'vendor-dnd';
+					}
+
+					// Tauri API (desktop integration)
+					if (id.includes('@tauri-apps')) {
+						return 'vendor-tauri';
+					}
+
+					// Fuzzy search library (command palette)
+					if (id.includes('fuse.js')) {
+						return 'vendor-fuse';
+					}
+
+					// Chart.js visualization library
 					if (id.includes('chart.js')) {
 						return 'vendor-chartjs';
 					}
-					// Split node_modules into vendor chunk
-					if (id.includes('node_modules')) {
-						return 'vendor';
+
+					// Workbox service worker library
+					if (id.includes('workbox')) {
+						return 'vendor-workbox';
 					}
+
+					// All other node_modules (should be small after above splits)
+					if (id.includes('node_modules')) {
+						return 'vendor-common';
+					}
+				},
+				// Improve chunk naming for better caching
+				chunkFileNames: (chunkInfo) => {
+					const name = chunkInfo.name;
+					// Use content hash for vendor chunks (better caching)
+					if (name.startsWith('vendor-')) {
+						return `_app/immutable/chunks/${name}.[hash].js`;
+					}
+					// Use sequential naming for app chunks
+					return '_app/immutable/chunks/[name].[hash].js';
 				}
 			},
 			// Tree-shaking optimizations
@@ -55,6 +98,10 @@ export default defineConfig({
 				propertyReadSideEffects: false,
 				unknownGlobalSideEffects: false
 			}
-		}
+		},
+		// Target modern browsers for smaller bundles
+		target: 'es2020',
+		// CSS code splitting
+		cssCodeSplit: true
 	}
 });

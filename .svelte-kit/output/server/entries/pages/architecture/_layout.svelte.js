@@ -1,1 +1,1 @@
-import{g as e}from"../../../chunks/vendor.js";function t(t,s){t.push('<div class="architecture-layout svelte-ntr07v">\x3c!--[--\x3e'),e(t,s,"default",{}),t.push("\x3c!--]--\x3e</div>")}export{t as default};
+import{j as e}from"../../../chunks/vendor-svelte.js";function t(t,s){t.push('<div class="architecture-layout svelte-ntr07v">\x3c!--[--\x3e'),e(t,s,"default",{}),t.push("\x3c!--]--\x3e</div>")}export{t as default};

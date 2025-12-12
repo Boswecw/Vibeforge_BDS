@@ -2,6 +2,7 @@
   import { onMount } from 'svelte';
   import { filterStore } from '$lib/stores/filters.svelte';
   import { Button, Input, Badge, Panel, Modal } from '$lib/components';
+  import { announceToScreenReader, generateAriaId } from '$lib/utils/accessibility';
   import type { FilterState } from '$lib/stores/filters.svelte';
 
   // Props
@@ -29,6 +30,8 @@
   let showPresetModal = $state(false);
   let newPresetName = $state('');
   let searchInput: HTMLInputElement;
+  let searchInputId = generateAriaId('search-input');
+  let suggestionsId = generateAriaId('search-suggestions');
 
   // Derived state from filter store
   let filters = $derived(filterStore.filters);
