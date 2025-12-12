@@ -1,14 +1,1 @@
-import { o as onDestroy, j as attr_style, h as stringify } from "./vendor.js";
-import { Chart, BarController, BarElement, LinearScale, CategoryScale, Title, Tooltip, Legend } from "chart.js";
-function BarChart($$renderer, $$props) {
-  $$renderer.component(($$renderer2) => {
-    Chart.register(BarController, BarElement, LinearScale, CategoryScale, Title, Tooltip, Legend);
-    let { labels, datasets, title, height = 300, horizontal = false } = $$props;
-    onDestroy(() => {
-    });
-    $$renderer2.push(`<div class="chart-container svelte-1m1tdtt"${attr_style(`height: ${stringify(height)}px;`)}><canvas></canvas></div>`);
-  });
-}
-export {
-  BarChart as default
-};
+import{o as t,j as a,h as s}from"./vendor.js";import{Chart as e,BarController as o,BarElement as r,LinearScale as i,CategoryScale as n,Title as c,Tooltip as h,Legend as m}from"chart.js";function p(p,v){p.component(p=>{e.register(o,r,i,n,c,h,m);let{height:d=300}=v;t(()=>{}),p.push(`<div class="chart-container svelte-1m1tdtt"${a(`height: ${s(d)}px;`)}><canvas></canvas></div>`)})}export{p as default};

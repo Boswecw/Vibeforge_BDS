@@ -20,6 +20,22 @@ export default defineConfig({
 		port: 4173
 	},
 	build: {
+		// Minification settings
+		minify: 'terser',
+		terserOptions: {
+			compress: {
+				drop_console: true, // Remove console.logs in production
+				drop_debugger: true,
+				pure_funcs: ['console.log', 'console.info', 'console.debug']
+			},
+			format: {
+				comments: false // Remove comments
+			}
+		},
+		// Source maps for production debugging
+		sourcemap: 'hidden',
+		// Chunk size warnings
+		chunkSizeWarningLimit: 500, // 500KB
 		rollupOptions: {
 			output: {
 				manualChunks(id) {
@@ -32,6 +48,12 @@ export default defineConfig({
 						return 'vendor';
 					}
 				}
+			},
+			// Tree-shaking optimizations
+			treeshake: {
+				moduleSideEffects: false,
+				propertyReadSideEffects: false,
+				unknownGlobalSideEffects: false
 			}
 		}
 	}

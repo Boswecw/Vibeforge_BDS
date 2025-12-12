@@ -1,14 +1,1 @@
-import { o as onDestroy, j as attr_style, h as stringify } from "./vendor.js";
-import { Chart, LineController, LineElement, PointElement, LinearScale, CategoryScale, Title, Tooltip, Legend, Filler } from "chart.js";
-function LineChart($$renderer, $$props) {
-  $$renderer.component(($$renderer2) => {
-    Chart.register(LineController, LineElement, PointElement, LinearScale, CategoryScale, Title, Tooltip, Legend, Filler);
-    let { labels, datasets, title, height = 300 } = $$props;
-    onDestroy(() => {
-    });
-    $$renderer2.push(`<div class="chart-container svelte-dtmdr8"${attr_style(`height: ${stringify(height)}px;`)}><canvas></canvas></div>`);
-  });
-}
-export {
-  LineChart as default
-};
+import{o as t,j as a,h as s}from"./vendor.js";import{Chart as e,LineController as r,LineElement as o,PointElement as i,LinearScale as n,CategoryScale as c,Title as h,Tooltip as d,Legend as m,Filler as p}from"chart.js";function v(v,f){v.component(v=>{e.register(r,o,i,n,c,h,d,m,p);let{height:l=300}=f;t(()=>{}),v.push(`<div class="chart-container svelte-dtmdr8"${a(`height: ${s(l)}px;`)}><canvas></canvas></div>`)})}export{v as default};

@@ -1,4 +1,1 @@
-import { S } from "./chunks/vendor.js";
-export {
-  S as Server
-};
+import{S as r}from"./chunks/vendor.js";export{r as Server};

@@ -1,11 +1,1 @@
-import { g as slot } from "../../../chunks/vendor.js";
-import "@sveltejs/kit/internal";
-import "@sveltejs/kit/internal/server";
-function _layout($$renderer, $$props) {
-  $$renderer.push(`<div class="architecture-layout svelte-ntr07v"><!--[-->`);
-  slot($$renderer, $$props, "default", {});
-  $$renderer.push(`<!--]--></div>`);
-}
-export {
-  _layout as default
-};
+import{g as e}from"../../../chunks/vendor.js";function t(t,s){t.push('<div class="architecture-layout svelte-ntr07v">\x3c!--[--\x3e'),e(t,s,"default",{}),t.push("\x3c!--]--\x3e</div>")}export{t as default};
