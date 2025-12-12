@@ -31,6 +31,9 @@ export { default as StreamingExecutionPanel } from './StreamingExecutionPanel.sv
 // Navigation Components
 export { default as Pagination } from './Pagination.svelte';
 
+// Search Components
+export { default as AdvancedSearch } from './AdvancedSearch.svelte';
+
 // Workflow Components
 export { default as DragDropWorkflow } from './DragDropWorkflow.svelte';
 
