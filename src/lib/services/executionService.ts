@@ -16,10 +16,34 @@ export async function startExecutionSession(
 	request: ExecutionRequest
 ): Promise<{ success: boolean; sessionId?: string; error?: AppError }> {
 	try {
+		// Start session on backend
+		const startResponse = await fetch(`${API_BASE_URL}/api/v1/bds/execution/start`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({
+				plan: request.plan || '',
+				language: request.language || 'typescript',
+				framework: request.framework || ''
+			})
+		});
+
+		if (!startResponse.ok) {
+			const error = await startResponse.json();
+			const appError = classifyError(new Error(error.detail || 'Failed to start session'));
+			return { success: false, error: appError };
+		}
+
+		const { sessionId } = await startResponse.json();
+
+		// Create local session with backend session ID
 		const session = executionStore.createSession(request);
+		session.id = sessionId;
+
 		executionStore.startSession(session.id);
 
-		const streamUrl = `${API_BASE_URL}/api/v1/bds/execution/${session.id}/stream`;
+		const streamUrl = `${API_BASE_URL}/api/v1/bds/execution/${sessionId}/stream`;
 
 		streamingService.subscribe(streamUrl, {
 			onChunk: (content: string) => {

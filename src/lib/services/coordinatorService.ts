@@ -104,14 +104,39 @@ export async function startWorkflowSession(
 	}
 
 	try {
-		// Create new coordinator session
+		// Start session on backend
+		const startResponse = await fetch(`${API_BASE_URL}/api/v1/bds/workflow/start`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({
+				task: request.task,
+				agents: request.agents,
+				dependencies: request.dependencies || [],
+				options: request.options || {}
+			})
+		});
+
+		if (!startResponse.ok) {
+			const error = await startResponse.json();
+			return {
+				success: false,
+				error: createValidationError(error.detail || 'Failed to start workflow session')
+			};
+		}
+
+		const { sessionId } = await startResponse.json();
+
+		// Create local session with backend session ID
 		const session = coordinatorStore.createSession(request);
+		session.id = sessionId;
 
 		// Start the session
 		coordinatorStore.startSession(session.id);
 
 		// Subscribe to SSE stream
-		const streamUrl = `${API_BASE_URL}/api/v1/bds/workflow/${session.id}/stream`;
+		const streamUrl = `${API_BASE_URL}/api/v1/bds/workflow/${sessionId}/stream`;
 
 		streamingService.subscribe(streamUrl, {
 			onChunk: (content: string) => {

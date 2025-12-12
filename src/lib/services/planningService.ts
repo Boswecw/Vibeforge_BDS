@@ -54,14 +54,34 @@ export async function startPlanningSession(
 	}
 
 	try {
-		// Create session
+		// Start session on backend
+		const startResponse = await fetch(`${API_BASE_URL}/api/v1/bds/planning/start`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({
+				request: `${request.title}\n\n${request.description}`,
+				context: request.context || ''
+			})
+		});
+
+		if (!startResponse.ok) {
+			const error = await startResponse.json();
+			return { success: false, error: createValidationError(error.detail || 'Failed to start session') };
+		}
+
+		const { sessionId } = await startResponse.json();
+
+		// Create local session with backend session ID
 		const session = planningStore.createSession(request);
+		session.id = sessionId;
 
 		// Start session
 		planningStore.startSession(session.id);
 
 		// Subscribe to streaming updates
-		const streamUrl = `${API_BASE_URL}/api/v1/bds/planning/${session.id}/stream`;
+		const streamUrl = `${API_BASE_URL}/api/v1/bds/planning/${sessionId}/stream`;
 
 		streamingService.subscribe(streamUrl, {
 			onChunk: (content: string) => {

@@ -58,14 +58,37 @@ export async function startEvaluationSession(
 	}
 
 	try {
-		// Create new evaluation session
+		// Start session on backend
+		const startResponse = await fetch(`${API_BASE_URL}/api/v1/bds/evaluation/start`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({
+				code: request.executionResult.code,
+				criteria: request.criteria
+			})
+		});
+
+		if (!startResponse.ok) {
+			const error = await startResponse.json();
+			return {
+				success: false,
+				error: createValidationError(error.detail || 'Failed to start evaluation session')
+			};
+		}
+
+		const { sessionId } = await startResponse.json();
+
+		// Create local session with backend session ID
 		const session = evaluatorStore.createSession(request);
+		session.id = sessionId;
 
 		// Start the session
 		evaluatorStore.startSession(session.id);
 
 		// Subscribe to SSE stream
-		const streamUrl = `${API_BASE_URL}/api/v1/bds/evaluation/${session.id}/stream`;
+		const streamUrl = `${API_BASE_URL}/api/v1/bds/evaluation/${sessionId}/stream`;
 
 		streamingService.subscribe(streamUrl, {
 			onChunk: (content: string) => {
