@@ -1,6 +1,7 @@
 <script lang="ts">
-  import { createEventDispatcher } from 'svelte';
+  import { createEventDispatcher, onMount } from 'svelte';
   import Button from './Button.svelte';
+  import { FocusTrap } from '$lib/utils/accessibility';
 
   // Props
   export let open: boolean = false;
@@ -12,6 +13,19 @@
   export let showFooter: boolean = true;
 
   const dispatch = createEventDispatcher();
+  let focusTrap: FocusTrap | null = null;
+  let modalEl: HTMLElement;
+
+  // Effect to manage focus trap when modal opens/closes
+  $: if (open && modalEl) {
+    setTimeout(() => {
+      focusTrap = new FocusTrap(modalEl);
+      focusTrap.activate();
+    }, 50);
+  } else if (!open && focusTrap) {
+    focusTrap.deactivate();
+    focusTrap = null;
+  }
 
   // Size classes
   $: sizeClass = {
@@ -46,7 +60,7 @@
 
 {#if open}
   <div class="modal-backdrop" on:click={handleBackdropClick} role="presentation">
-    <div class="modal {sizeClass}" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div bind:this={modalEl} class="modal {sizeClass}" role="dialog" aria-modal="true" aria-labelledby="modal-title">
       <!-- Header -->
       <div class="modal-header">
         {#if title}

@@ -14,6 +14,7 @@
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
 	import Fuse from 'fuse.js';
+	import { FocusTrap, announceToScreenReader, generateAriaId } from '$lib/utils/accessibility';
 
 	interface CommandItem {
 		id: string;
@@ -32,6 +33,10 @@
 	let selectedIndex = $state(0);
 	let recentItems = $state<string[]>([]);
 	let fuse: Fuse<CommandItem> | null = null;
+	let focusTrap: FocusTrap | null = null;
+	let containerEl: HTMLElement;
+	let inputId = generateAriaId('command-palette-input');
+	let resultsId = generateAriaId('command-palette-results');
 
 	// Searchable items
 	const commandItems: CommandItem[] = [
@@ -268,10 +273,17 @@
 			e.preventDefault();
 			isOpen = true;
 			selectedIndex = 0;
-			// Focus input after opening
+
+			// Announce to screen readers
+			announceToScreenReader('Command palette opened. Type to search or use arrow keys to navigate.');
+
+			// Activate focus trap and focus input
 			setTimeout(() => {
-				document.getElementById('command-palette-input')?.focus();
-			}, 10);
+				if (containerEl) {
+					focusTrap = new FocusTrap(containerEl);
+					focusTrap.activate();
+				}
+			}, 50);
 		}
 	}
 
@@ -358,9 +370,18 @@
 	}
 
 	function close() {
+		// Deactivate focus trap
+		if (focusTrap) {
+			focusTrap.deactivate();
+			focusTrap = null;
+		}
+
 		isOpen = false;
 		query = '';
 		selectedIndex = 0;
+
+		// Announce to screen readers
+		announceToScreenReader('Command palette closed.');
 	}
 
 	function handleBackdropClick() {
@@ -372,16 +393,36 @@
 		query;
 		selectedIndex = 0;
 	});
+
+	// Announce results count to screen readers
+	$effect(() => {
+		if (isOpen && filteredItems.length > 0) {
+			announceToScreenReader(
+				`${filteredItems.length} result${filteredItems.length === 1 ? '' : 's'} found.`,
+				'polite'
+			);
+		}
+	});
 </script>
 
 {#if isOpen}
-	<div class="command-palette-backdrop" onclick={handleBackdropClick}>
-		<div class="command-palette-container" onclick={(e) => e.stopPropagation()}>
+	<div class="command-palette-backdrop" onclick={handleBackdropClick} role="presentation">
+		<div
+			bind:this={containerEl}
+			class="command-palette-container"
+			onclick={(e) => e.stopPropagation()}
+			role="dialog"
+			aria-modal="true"
+			aria-labelledby="command-palette-title"
+		>
+			<!-- Hidden title for screen readers -->
+			<h2 id="command-palette-title" class="sr-only">Command Palette</h2>
+
 			<!-- Search Input -->
 			<div class="command-palette-input-wrapper">
-				<span class="search-icon">🔍</span>
+				<span class="search-icon" aria-hidden="true">🔍</span>
 				<input
-					id="command-palette-input"
+					id={inputId}
 					type="text"
 					bind:value={query}
 					onkeydown={handleKeydown}
@@ -389,35 +430,50 @@
 					class="command-palette-input"
 					autocomplete="off"
 					spellcheck={false}
+					role="combobox"
+					aria-label="Search commands"
+					aria-autocomplete="list"
+					aria-controls={resultsId}
+					aria-expanded={filteredItems.length > 0}
+					aria-activedescendant={filteredItems[selectedIndex] ? `command-item-${selectedIndex}` : ''}
 				/>
-				<kbd class="shortcut-hint">esc</kbd>
+				<kbd class="shortcut-hint" aria-label="Press escape to close">esc</kbd>
 			</div>
 
 			<!-- Results -->
-			<div class="command-palette-results">
+			<div
+				id={resultsId}
+				class="command-palette-results"
+				role="listbox"
+				aria-label="Search results"
+			>
 				{#if filteredItems.length === 0 && !query}
-					<div class="empty-state">
-						<p class="empty-icon">⌨️</p>
+					<div class="empty-state" role="status">
+						<p class="empty-icon" aria-hidden="true">⌨️</p>
 						<p class="empty-message">Type to search...</p>
 						<p class="empty-hint">
 							Search for routes, skills, workflows, or actions
 						</p>
 					</div>
 				{:else if filteredItems.length === 0}
-					<div class="empty-state">
-						<p class="empty-icon">🔍</p>
+					<div class="empty-state" role="status">
+						<p class="empty-icon" aria-hidden="true">🔍</p>
 						<p class="empty-message">No results found</p>
 						<p class="empty-hint">Try a different search term</p>
 					</div>
 				{:else}
 					{#each filteredItems as item, index (item.id)}
 						<button
+							id="command-item-{index}"
 							class="command-item"
 							class:selected={index === selectedIndex}
 							onclick={() => selectItem(item)}
 							onmouseenter={() => (selectedIndex = index)}
+							role="option"
+							aria-selected={index === selectedIndex}
+							aria-label="{item.title}, {item.type}{item.description ? ', ' + item.description : ''}"
 						>
-							<span class="item-icon">{item.icon}</span>
+							<span class="item-icon" aria-hidden="true">{item.icon}</span>
 							<div class="item-content">
 								<div class="item-title">{item.title}</div>
 								{#if item.description}
@@ -677,5 +733,18 @@
 		.command-palette-results {
 			max-height: 300px;
 		}
+	}
+
+	/* Screen reader only class */
+	.sr-only {
+		position: absolute;
+		width: 1px;
+		height: 1px;
+		padding: 0;
+		margin: -1px;
+		overflow: hidden;
+		clip: rect(0, 0, 0, 0);
+		white-space: nowrap;
+		border-width: 0;
 	}
 </style>

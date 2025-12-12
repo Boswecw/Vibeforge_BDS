@@ -25,6 +25,9 @@
 
 <!-- VibeForge_BDS Layout Structure -->
 <ErrorBoundary showDetails={showErrorDetails}>
+  <!-- Skip Link for Keyboard Navigation -->
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
   <!-- Command Palette (Cmd+K / Ctrl+K) -->
   <CommandPalette />
 
@@ -44,7 +47,7 @@
       <Header />
 
       <!-- Page Content -->
-      <main class="main-content">
+      <main id="main-content" class="main-content" tabindex="-1">
         <slot />
       </main>
     </div>
@@ -77,6 +80,25 @@
     flex: 1;
     padding: var(--spacing-xl);
     overflow-x: hidden;
+  }
+
+  /* Skip Link for Accessibility */
+  .skip-link {
+    position: absolute;
+    top: -100px;
+    left: 0;
+    z-index: 10001;
+    padding: 1rem 2rem;
+    background-color: var(--color-brass);
+    color: var(--color-midnight);
+    text-decoration: none;
+    font-weight: 600;
+    border-radius: 0 0 var(--radius-md) 0;
+    transition: top 0.2s ease;
+  }
+
+  .skip-link:focus {
+    top: 0;
   }
 
   /* Responsive Layout */
