@@ -24,3 +24,6 @@ export { default as Alert } from './Alert.svelte';
 // Error Components
 export { default as ErrorBoundary } from './ErrorBoundary.svelte';
 export { default as ErrorNotifications } from './ErrorNotifications.svelte';
+
+// Execution Components
+export { default as StreamingExecutionPanel } from './StreamingExecutionPanel.svelte';

@@ -41,14 +41,36 @@ export interface SkillInvocationRequest {
 export interface SkillInvocationResponse {
 	sessionId: string;
 	status: 'success' | 'error';
-	output?: string;
-	error?: string;
+	output: string | null;
+	error: string | null;
 	metadata: {
-		tokens_used: number;
+		sessionId: string;
+		skillId: string;
+		skillName: string;
+		model: string;
+		tokensUsed: number;
 		cost: number;
-		latency_ms: number;
-		model_used: string;
+		latency: number; // in seconds
+		timestamp: string;
 	};
+}
+
+// Streaming
+export interface StreamingToken {
+	sessionId: string;
+	token: string;
+	done: boolean;
+}
+
+export interface StreamingMetadata {
+	sessionId: string;
+	skillId: string;
+	skillName: string;
+	model: string;
+	tokensUsed: number;
+	cost: number;
+	latency: number;
+	timestamp: string;
 }
 
 // Session tracking

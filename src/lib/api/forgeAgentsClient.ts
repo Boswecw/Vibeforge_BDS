@@ -20,7 +20,7 @@ export class ForgeAgentsClient {
 	private maxRetries: number = 3;
 	private timeout: number = 30000; // 30 seconds
 
-	constructor(baseUrl: string = 'http://localhost:3000') {
+	constructor(baseUrl: string = 'http://localhost:8787') {
 		this.baseUrl = baseUrl;
 	}
 
@@ -211,7 +211,7 @@ export class ForgeAgentsClient {
 	async *invokeSkillStreaming(
 		skillId: string,
 		request: SkillInvocationRequest
-	): AsyncGenerator<string> {
+	): AsyncGenerator<{type: 'token' | 'metadata' | 'error', data: any}> {
 		let reader: ReadableStreamDefaultReader<Uint8Array> | null = null;
 
 		try {
@@ -234,11 +234,65 @@ export class ForgeAgentsClient {
 
 			reader = response.body.getReader();
 			const decoder = new TextDecoder();
+			let buffer = '';
 
 			while (true) {
 				const { done, value } = await reader.read();
-				if (done) break;
-				yield decoder.decode(value, { stream: true });
+
+				if (done) {
+					// Process any remaining data in buffer
+					if (buffer.trim()) {
+						const lines = buffer.split('\n');
+						for (const line of lines) {
+							const trimmed = line.trim();
+							if (trimmed.startsWith('data: ')) {
+								const jsonStr = trimmed.substring(6);
+								try {
+									const parsed = JSON.parse(jsonStr);
+									if (parsed.token) {
+										yield { type: 'token', data: parsed };
+									} else if (parsed.metadata) {
+										yield { type: 'metadata', data: parsed.metadata };
+									}
+								} catch (e) {
+									console.warn('Failed to parse SSE data:', jsonStr);
+								}
+							}
+						}
+					}
+					break;
+				}
+
+				// Add to buffer
+				buffer += decoder.decode(value, { stream: true });
+
+				// Process complete lines
+				const lines = buffer.split('\n');
+				buffer = lines.pop() || ''; // Keep incomplete line in buffer
+
+				for (const line of lines) {
+					const trimmed = line.trim();
+					if (trimmed.startsWith('data: ')) {
+						const jsonStr = trimmed.substring(6); // Remove "data: " prefix
+						try {
+							const parsed = JSON.parse(jsonStr);
+
+							// Check what type of message this is
+							if (parsed.token !== undefined) {
+								// Token message
+								yield { type: 'token', data: parsed };
+							} else if (parsed.metadata) {
+								// Metadata message (final)
+								yield { type: 'metadata', data: parsed.metadata };
+							} else if (parsed.error) {
+								// Error message
+								yield { type: 'error', data: parsed.error };
+							}
+						} catch (e) {
+							console.warn('Failed to parse SSE data:', jsonStr, e);
+						}
+					}
+				}
 			}
 		} catch (error) {
 			throw classifyError(error);

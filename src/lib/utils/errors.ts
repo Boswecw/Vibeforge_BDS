@@ -198,16 +198,35 @@ function classifyResponseError(response: Response, id: string, timestamp: Date):
 					retryable: false
 				};
 
-			case 429:
+			case 429: {
+				// Parse Retry-After header (seconds or HTTP date)
+				const retryAfterHeader = response.headers.get('Retry-After');
+				let retryAfter = 60000; // Default: 1 minute
+
+				if (retryAfterHeader) {
+					const retryAfterSeconds = parseInt(retryAfterHeader, 10);
+					if (!isNaN(retryAfterSeconds)) {
+						// Header is in seconds
+						retryAfter = retryAfterSeconds * 1000;
+					} else {
+						// Header might be HTTP date - calculate difference
+						const retryDate = new Date(retryAfterHeader);
+						if (!isNaN(retryDate.getTime())) {
+							retryAfter = Math.max(0, retryDate.getTime() - Date.now());
+						}
+					}
+				}
+
 				return {
 					...baseError,
 					category: ErrorCategory.RATE_LIMIT,
 					severity: ErrorSeverity.MEDIUM,
 					message: 'Rate limit exceeded',
-					userMessage: 'Too many requests. Please wait and try again.',
+					userMessage: `Too many requests. Please wait ${Math.ceil(retryAfter / 1000)} seconds and try again.`,
 					retryable: true,
-					retryAfter: 60000 // 1 minute
+					retryAfter
 				};
+			}
 
 			default:
 				return {
