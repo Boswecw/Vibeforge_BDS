@@ -33,7 +33,7 @@
 			bind:this={outputContainer}
 			class="output-container"
 			class:streaming={isStreaming}
-			on:scroll={handleScroll}
+			onscroll={handleScroll}
 		>
 			{#if output}
 				<pre class="output-text">{output}</pre>

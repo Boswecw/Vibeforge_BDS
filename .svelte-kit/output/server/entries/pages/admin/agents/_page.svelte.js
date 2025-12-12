@@ -1,56 +1,15 @@
-import { Z as attr, a1 as bind_props, X as ensure_array_like, a2 as fallback, _ as store_get, a0 as unsubscribe_stores } from "../../../../chunks/index2.js";
+import { Z as attr, a2 as bind_props, a1 as fallback, Y as ensure_array_like, $ as escape_html, X as store_get, a0 as unsubscribe_stores } from "../../../../chunks/index2.js";
 import { w as writable } from "../../../../chunks/index.js";
-import { e as escape_html } from "../../../../chunks/escaping.js";
-const AGENT_TEMPLATES = {
-  planner: [
-    {
-      id: "planner.cross-repo.feature-plan",
-      label: "Cross-Repo Feature Plan",
-      description: "Generates a multi-repo implementation plan with PAORT steps.",
-      kind: "planner",
-      pipelineId: "nf.mapo.plan.cross_repo.v1",
-      allowedRepos: ["vibeforge", "authorforge", "dataforge", "forgeagents"],
-      autoEvaluateWithSAS: true,
-      locked: true
-    }
-  ],
-  execution: [
-    {
-      id: "execution.prompt.neuroforge",
-      label: "Prompt Exec via NeuroForge",
-      description: "Runs prompt executions through NeuroForge with safety and telemetry.",
-      kind: "execution",
-      pipelineId: "nf.mapo.prompt_exec.v1",
-      allowedRepos: ["vibeforge", "authorforge"],
-      autoEvaluateWithSAS: true,
-      locked: false
-    }
-  ],
-  evaluator: [
-    {
-      id: "evaluator.sas.compliance",
-      label: "SAS Compliance Check",
-      description: "Evaluates outputs against SAS sections and safety rules.",
-      kind: "evaluator",
-      pipelineId: "nf.mapo.eval.sas.v1",
-      allowedRepos: ["vibeforge", "authorforge", "websafe"],
-      autoEvaluateWithSAS: true,
-      locked: true
-    }
-  ],
-  coordinator: [
-    {
-      id: "coordinator.multi-app.provider-rollout",
-      label: "Multi-App Provider API Rollout",
-      description: "Coordinates provider rollout across VibeForge, AuthorForge, and WebSafe.",
-      kind: "coordinator",
-      pipelineId: "nf.mapo.coordinator.provider_rollout.v1",
-      allowedRepos: ["vibeforge", "authorforge", "websafe", "dataforge"],
-      autoEvaluateWithSAS: true,
-      locked: true
-    }
-  ]
-};
+import { A as AGENT_TEMPLATES } from "../../../../chunks/templates.js";
+import "@sveltejs/kit/internal";
+import "../../../../chunks/exports.js";
+import "../../../../chunks/utils.js";
+import "@sveltejs/kit/internal/server";
+import "../../../../chunks/state.svelte.js";
+import "../../../../chunks/Pagination.svelte_svelte_type_style_lang.js";
+/* empty css                                                     */
+import { P as Panel } from "../../../../chunks/Panel.js";
+import { A as Alert } from "../../../../chunks/Alert.js";
 function AgentTemplateForm($$renderer, $$props) {
   $$renderer.component(($$renderer2) => {
     let template = $$props["template"];
@@ -105,12 +64,28 @@ function _page($$renderer, $$props) {
     const handleUpdate = (updated) => {
       templatesStore.update((items) => items.map((t) => t.id === updated.id ? { ...t, ...updated } : t));
     };
-    $$renderer2.push(`<section class="space-y-4"><header class="flex items-center justify-between"><div><h1 class="text-xl font-semibold text-white">Agent Templates (Admin)</h1> <p class="text-sm text-slate-400">Manage in-memory templates. Locked templates are view-only. TODO: persist via Tauri config.</p></div></header> `);
-    AgentTemplateTable($$renderer2, {
-      templates: store_get($$store_subs ??= {}, "$templatesStore", templatesStore),
-      onUpdate: handleUpdate
+    $$renderer2.push(`<div class="admin-container svelte-1o5mf4f"><div class="page-header svelte-1o5mf4f"><h1 class="page-title svelte-1o5mf4f">Agent Templates</h1> <p class="page-description svelte-1o5mf4f">Manage in-memory templates. Locked templates are view-only.</p></div> `);
+    Alert($$renderer2, {
+      variant: "info",
+      dismissible: true,
+      children: ($$renderer3) => {
+        $$renderer3.push(`<!---->TODO: Template persistence via Tauri config not yet implemented. Changes are in-memory only.`);
+      },
+      $$slots: { default: true }
     });
-    $$renderer2.push(`<!----></section>`);
+    $$renderer2.push(`<!----> `);
+    Panel($$renderer2, {
+      variant: "bordered",
+      padding: "lg",
+      children: ($$renderer3) => {
+        AgentTemplateTable($$renderer3, {
+          templates: store_get($$store_subs ??= {}, "$templatesStore", templatesStore),
+          onUpdate: handleUpdate
+        });
+      },
+      $$slots: { default: true }
+    });
+    $$renderer2.push(`<!----></div>`);
     if ($$store_subs) unsubscribe_stores($$store_subs);
   });
 }

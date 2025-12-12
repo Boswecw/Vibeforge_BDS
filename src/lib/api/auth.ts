@@ -30,6 +30,9 @@ export class TokenManager {
 
 	async initialize(): Promise<void> {
 		try {
+			// Only run in browser environment
+			if (typeof window === 'undefined') return;
+
 			const invoke = await getTauriInvoke();
 			if (invoke) {
 				// Tauri desktop app - use secure storage
@@ -67,6 +70,9 @@ export class TokenManager {
 		this.refreshToken = refreshToken;
 		this.expiresAt = new Date(expiresAt).getTime();
 
+		// Only persist in browser environment
+		if (typeof window === 'undefined') return;
+
 		try {
 			const invoke = await getTauriInvoke();
 			if (invoke) {
@@ -89,6 +95,10 @@ export class TokenManager {
 		this.accessToken = null;
 		this.refreshToken = null;
 		this.expiresAt = null;
+
+		// Only persist in browser environment
+		if (typeof window === 'undefined') return;
+
 		try {
 			const invoke = await getTauriInvoke();
 			if (invoke) {

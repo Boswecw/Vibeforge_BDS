@@ -25,7 +25,7 @@
 	<div class="code-header">
 		<h4>Generated Code</h4>
 		<div class="code-actions">
-			<Button variant="secondary" size="small" onclick={copyCode} disabled={!code}>
+			<Button variant="secondary" size="sm" onclick={copyCode} disabled={!code}>
 				Copy
 			</Button>
 		</div>

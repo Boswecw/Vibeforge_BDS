@@ -7,6 +7,7 @@
   export let fullWidth: boolean = false;
   export let type: 'button' | 'submit' | 'reset' = 'button';
   export let href: string | undefined = undefined;
+  export let onclick: ((event: MouseEvent) => void) | undefined = undefined;
 
   // Compute classes
   $: classes = [
@@ -25,14 +26,14 @@
 </script>
 
 {#if isLink}
-  <a {href} class={classes} aria-disabled={disabled} role="button">
+  <a {href} class={classes} aria-disabled={disabled} role="button" {onclick}>
     {#if loading}
       <span class="spinner" aria-hidden="true"></span>
     {/if}
     <slot />
   </a>
 {:else}
-  <button {type} class={classes} {disabled} on:click>
+  <button {type} class={classes} {disabled} {onclick}>
     {#if loading}
       <span class="spinner" aria-hidden="true"></span>
     {/if}

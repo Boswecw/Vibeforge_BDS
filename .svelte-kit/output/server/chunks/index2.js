@@ -1,4 +1,3 @@
-import { e as escape_html } from "./escaping.js";
 import { B as BROWSER } from "./false.js";
 var is_array = Array.isArray;
 var index_of = Array.prototype.indexOf;
@@ -1795,6 +1794,22 @@ const PASSIVE_EVENTS = ["touchstart", "touchmove"];
 function is_passive_event(name) {
   return PASSIVE_EVENTS.includes(name);
 }
+const ATTR_REGEX = /[&"<]/g;
+const CONTENT_REGEX = /[&<]/g;
+function escape_html(value, is_attr) {
+  const str = String(value ?? "");
+  const pattern = is_attr ? ATTR_REGEX : CONTENT_REGEX;
+  pattern.lastIndex = 0;
+  let escaped = "";
+  let last = 0;
+  while (pattern.test(str)) {
+    const i = pattern.lastIndex - 1;
+    const ch = str[i];
+    escaped += str.substring(last, i) + (ch === "&" ? "&amp;" : ch === '"' ? "&quot;" : "&lt;");
+    last = i + 1;
+  }
+  return escaped + str.substring(last);
+}
 function r(e) {
   var t, f, n = "";
   if ("string" == typeof e || "number" == typeof e) n += e;
@@ -1965,6 +1980,7 @@ function subscribe_to_store(store, run, invalidate) {
 }
 const BLOCK_OPEN = `<!--${HYDRATION_START}-->`;
 const BLOCK_CLOSE = `<!--${HYDRATION_END}-->`;
+const EMPTY_COMMENT = `<!---->`;
 let controller = null;
 function abort() {
   controller?.abort(STALE_REACTION);
@@ -2093,10 +2109,10 @@ class Renderer {
    * @param {(renderer: Renderer) => void} fn
    */
   head(fn) {
-    const head = new Renderer(this.global, this);
-    head.type = "head";
-    this.#out.push(head);
-    head.child(fn);
+    const head2 = new Renderer(this.global, this);
+    head2.type = "head";
+    this.#out.push(head2);
+    head2.child(fn);
   }
   /**
    * @param {Array<Promise<void>>} blockers
@@ -2218,7 +2234,7 @@ class Renderer {
    */
   option(attrs, body, css_hash, classes, styles, flags) {
     this.#out.push(`<option${attributes(attrs, css_hash, classes, styles, flags)}`);
-    const close = (renderer, value, { head, body: body2 }) => {
+    const close = (renderer, value, { head: head2, body: body2 }) => {
       if ("value" in attrs) {
         value = attrs.value;
       }
@@ -2226,8 +2242,8 @@ class Renderer {
         renderer.#out.push(" selected");
       }
       renderer.#out.push(`>${body2}</option>`);
-      if (head) {
-        renderer.head((child) => child.push(head));
+      if (head2) {
+        renderer.head((child) => child.push(head2));
       }
     };
     if (typeof body === "function") {
@@ -2252,8 +2268,8 @@ class Renderer {
    */
   title(fn) {
     const path = this.get_path();
-    const close = (head) => {
-      this.global.set_title(head, path);
+    const close = (head2) => {
+      this.global.set_title(head2, path);
     };
     this.child((renderer) => {
       const r2 = new Renderer(renderer.global, renderer);
@@ -2535,13 +2551,13 @@ class Renderer {
     for (const cleanup of renderer.#collect_on_destroy()) {
       cleanup();
     }
-    let head = content.head + renderer.global.get_title();
+    let head2 = content.head + renderer.global.get_title();
     let body = content.body;
     for (const { hash, code } of renderer.global.css) {
-      head += `<style id="${hash}">${code}</style>`;
+      head2 += `<style id="${hash}">${code}</style>`;
     }
     return {
-      head,
+      head: head2,
       body
     };
   }
@@ -2627,6 +2643,13 @@ function render(component, options = {}) {
     options
   );
 }
+function head(hash, renderer, fn) {
+  renderer.head((renderer2) => {
+    renderer2.push(`<!--${hash}-->`);
+    renderer2.child(fn);
+    renderer2.push(EMPTY_COMMENT);
+  });
+}
 function attributes(attrs, css_hash, classes, styles, flags = 0) {
   if (styles) {
     attrs.style = to_style(attrs.style, styles);
@@ -2660,9 +2683,16 @@ function attributes(attrs, css_hash, classes, styles, flags = 0) {
   }
   return attr_str;
 }
+function stringify(value) {
+  return typeof value === "string" ? value : value == null ? "" : value + "";
+}
 function attr_class(value, hash, directives) {
   var result = to_class(value, hash, directives);
   return result ? ` class="${escape_html(result, true)}"` : "";
+}
+function attr_style(value, directives) {
+  var result = to_style(value, directives);
+  return result ? ` style="${escape_html(result, true)}"` : "";
 }
 function store_get(store_values, store_name, store) {
   if (store_name in store_values && store_values[store_name][0] === store) {
@@ -2686,11 +2716,19 @@ function unsubscribe_stores(store_values) {
 function slot(renderer, $$props, name, slot_props, fallback_fn) {
   var slot_fn = $$props.$$slots?.[name];
   if (slot_fn === true) {
-    slot_fn = $$props["children"];
+    slot_fn = $$props[name === "default" ? "children" : name];
   }
   if (slot_fn !== void 0) {
     slot_fn(renderer, slot_props);
   }
+}
+function sanitize_slots(props) {
+  const sanitized = {};
+  if (props.children) sanitized.default = true;
+  for (const key in props.$$slots) {
+    sanitized[key] = true;
+  }
+  return sanitized;
 }
 function bind_props(props_parent, props_now) {
   for (const key in props_now) {
@@ -2708,7 +2746,7 @@ function ensure_array_like(array_like_or_iterator) {
   return [];
 }
 export {
-  slot as $,
+  escape_html as $,
   svelte_boundary_reset_onerror as A,
   Batch as B,
   COMMENT_NODE as C,
@@ -2732,18 +2770,24 @@ export {
   mutable_source as U,
   render as V,
   setContext as W,
-  ensure_array_like as X,
-  attr_class as Y,
+  store_get as X,
+  ensure_array_like as Y,
   attr as Z,
-  store_get as _,
+  attr_class as _,
   HYDRATION_END as a,
   unsubscribe_stores as a0,
-  bind_props as a1,
-  fallback as a2,
-  noop as a3,
-  safe_not_equal as a4,
-  getContext as a5,
-  ssr_context as a6,
+  fallback as a1,
+  bind_props as a2,
+  slot as a3,
+  stringify as a4,
+  noop as a5,
+  safe_not_equal as a6,
+  attr_style as a7,
+  head as a8,
+  getContext as a9,
+  clsx as aa,
+  ssr_context as ab,
+  sanitize_slots as ac,
   HYDRATION_START as b,
   HYDRATION_START_ELSE as c,
   get as d,

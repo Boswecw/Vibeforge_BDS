@@ -8,18 +8,43 @@ export const nodes = [
 	() => import('./nodes/4'),
 	() => import('./nodes/5'),
 	() => import('./nodes/6'),
-	() => import('./nodes/7')
+	() => import('./nodes/7'),
+	() => import('./nodes/8'),
+	() => import('./nodes/9'),
+	() => import('./nodes/10'),
+	() => import('./nodes/11'),
+	() => import('./nodes/12'),
+	() => import('./nodes/13'),
+	() => import('./nodes/14'),
+	() => import('./nodes/15'),
+	() => import('./nodes/16'),
+	() => import('./nodes/17'),
+	() => import('./nodes/18'),
+	() => import('./nodes/19'),
+	() => import('./nodes/20')
 ];
 
 export const server_loads = [];
 
 export const dictionary = {
-		"/": [2],
-		"/admin/agents": [3],
-		"/history": [4],
-		"/library": [5],
-		"/library/[id]": [6],
-		"/settings": [7]
+		"/": [3],
+		"/admin": [4],
+		"/admin/agents": [5],
+		"/agents": [6],
+		"/analytics": [7],
+		"/architecture": [8,[2]],
+		"/coordinator": [9],
+		"/evaluator": [10],
+		"/execution": [11],
+		"/history": [12],
+		"/library": [13],
+		"/library/[id]": [14],
+		"/models": [15],
+		"/planning": [16],
+		"/settings": [17],
+		"/test-api": [18],
+		"/testing": [19],
+		"/workflows": [20]
 	};
 
 export const hooks = {

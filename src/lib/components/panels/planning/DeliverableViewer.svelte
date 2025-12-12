@@ -53,14 +53,14 @@
 					<div class="plan-actions">
 						<Button
 							variant="secondary"
-							size="small"
+							size="sm"
 							onclick={() => copyToClipboard(JSON.stringify(deliverable.plan, null, 2))}
 						>
 							Copy
 						</Button>
 						<Button
 							variant="secondary"
-							size="small"
+							size="sm"
 							onclick={() => downloadAsFile(JSON.stringify(deliverable.plan, null, 2), `${deliverable.plan.title}.json`)}
 						>
 							Download
@@ -152,12 +152,12 @@
 				<div class="prompt-header">
 					<h3>Execution Prompt</h3>
 					<div class="prompt-actions">
-						<Button variant="secondary" size="small" onclick={() => copyToClipboard(deliverable.prompt)}>
+						<Button variant="secondary" size="sm" onclick={() => copyToClipboard(deliverable.prompt)}>
 							Copy
 						</Button>
 						<Button
 							variant="secondary"
-							size="small"
+							size="sm"
 							onclick={() => downloadAsFile(deliverable.prompt, `${deliverable.plan.title}-prompt.txt`)}
 						>
 							Download
