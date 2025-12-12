@@ -19,7 +19,7 @@
   } from '@dnd-kit/sortable';
   import { CSS } from '@dnd-kit/utilities';
   import type { Skill } from '$lib/api/types';
-  import { Button, Badge, Modal, Input, Textarea, Alert } from '$lib/components';
+  import { Button, Badge, Modal, Input, Textarea, Alert, Select } from '$lib/components';
 
   // Props
   interface Props {

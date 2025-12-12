@@ -7,7 +7,7 @@
  * - Run: cd forge_agents_bds_api && venv/bin/uvicorn app.main:app --port 8787
  */
 
-import { describe, it, expect, beforeAll } from 'vitest';
+import { describe, it, expect, beforeAll, vi } from 'vitest';
 import { ForgeAgentsClient } from './forgeAgentsClient';
 import type { Skill } from './types';
 

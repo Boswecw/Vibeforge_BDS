@@ -12,13 +12,9 @@ declare global {
 	// Vite environment variables
 	interface ImportMetaEnv {
 		readonly VITE_API_BASE_URL?: string;
-		readonly PROD: boolean;
-		readonly DEV: boolean;
-		readonly MODE: string;
-	}
-
-	interface ImportMeta {
-		readonly env: ImportMetaEnv;
+		readonly VITE_FORGE_AGENTS_URL?: string;
+		readonly VITE_DATAFORGE_BASE_URL?: string;
+		readonly VITE_NEUROFORGE_BASE_URL?: string;
 	}
 }
 
