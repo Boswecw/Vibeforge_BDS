@@ -289,10 +289,10 @@ export interface EvaluationMetrics {
 // ═══════════════════════════════════════════════════════════════════════
 
 export interface WorkflowRequest {
-	title: string;
-	description: string;
+	task: string;
 	agents: AgentNode[];
 	dependencies: Dependency[];
+	options?: Record<string, unknown>;
 }
 
 export interface AgentNode {

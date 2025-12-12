@@ -10,7 +10,7 @@ import type {
 	WorkflowRequest,
 	WorkflowExecution,
 	AgentNode,
-	DependencyEdge
+	Dependency
 } from '$lib/types/agents';
 import { createValidationError, classifyError, type AppError } from '$lib/utils/errors';
 
@@ -52,7 +52,7 @@ export function validateWorkflowRequest(request: WorkflowRequest): AppError | nu
 	return null;
 }
 
-function detectCycle(nodes: AgentNode[], edges: DependencyEdge[]): boolean {
+function detectCycle(nodes: AgentNode[], edges: Dependency[]): boolean {
 	const graph = new Map<string, Set<string>>();
 
 	// Build adjacency list
