@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { Panel, Input, Select, Button, Badge, Alert } from '$lib/components';
+  import VirtualList from '$lib/components/VirtualList.svelte';
 
   interface HistoryEntry {
     id: string;
@@ -29,14 +30,12 @@
   let filterSection = $state('all');
   let filterStatus = $state('all');
   let sortBy = $state('recent');
-  let currentPage = $state(1);
-  let itemsPerPage = 20;
   let expandedId: string | null = $state(null);
 
-  let totalPages = $derived(Math.ceil(filteredHistory.length / itemsPerPage));
-  let paginatedHistory = $derived(
-    filteredHistory.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
-  );
+  // Virtual scrolling configuration
+  const collapsedItemHeight = 100;
+  const expandedItemHeight = 600; // Approximate height when expanded
+
   const sections = $derived(Array.from(new Set(history.map((entry) => entry.section))).sort());
 
   const sectionOptions = $derived([
@@ -113,7 +112,6 @@
     });
 
     filteredHistory = filtered;
-    currentPage = 1;
   }
 
   $effect(() => {
@@ -190,7 +188,7 @@
       <div class="spinner"></div>
       <p>Loading history...</p>
     </div>
-  {:else if paginatedHistory.length === 0}
+  {:else if filteredHistory.length === 0}
     <Panel variant="elevated" padding="lg">
       <div class="empty-state">
         <div class="empty-icon">📋</div>
@@ -203,114 +201,101 @@
       </div>
     </Panel>
   {:else}
-    <div class="history-list">
-      {#each paginatedHistory as entry (entry.id)}
-        <Panel variant="bordered" padding="none">
-          <button class="entry-header" onclick={() => toggleExpand(entry.id)}>
-            <div class="entry-info">
-              <div class="entry-title">
-                <span class="skill-name">{entry.skillName}</span>
-                <Badge variant={entry.success ? 'success' : 'error'} size="sm">
-                  {entry.success ? 'Success' : 'Error'}
-                </Badge>
-              </div>
-              <div class="entry-meta">
-                <span>{formatDate(entry.timestamp)}</span>
-                <span class="separator">•</span>
-                <Badge variant="default" size="sm">{entry.section}</Badge>
-                <span class="separator">•</span>
-                <Badge variant="default" size="sm">{entry.category}</Badge>
-                {#if entry.metadata.cost}
-                  <span class="separator">•</span>
-                  <Badge variant="accent" size="sm">{formatCost(entry.metadata.cost)}</Badge>
-                {/if}
-              </div>
-            </div>
-            <span class="expand-icon">{expandedId === entry.id ? '▼' : '▶'}</span>
-          </button>
-
-          {#if expandedId === entry.id}
-            <div class="entry-details">
-              {#if entry.metadata}
-                <div class="details-section">
-                  <h3 class="section-title">Metadata</h3>
-                  <div class="metadata-grid">
-                    {#if entry.metadata.sessionId}
-                      <div class="meta-item">
-                        <span class="meta-label">Session ID</span>
-                        <code>{entry.metadata.sessionId}</code>
-                      </div>
-                    {/if}
-                    {#if entry.metadata.model}
-                      <div class="meta-item">
-                        <span class="meta-label">Model</span>
-                        <code>{entry.metadata.model}</code>
-                      </div>
-                    {/if}
-                    {#if entry.metadata.tokensUsed}
-                      <div class="meta-item">
-                        <span class="meta-label">Tokens</span>
-                        <code>{entry.metadata.tokensUsed}</code>
-                      </div>
-                    {/if}
-                    {#if entry.metadata.latency}
-                      <div class="meta-item">
-                        <span class="meta-label">Latency</span>
-                        <code>{formatLatency(entry.metadata.latency)}</code>
-                      </div>
+    <div class="virtual-container">
+      <VirtualList
+        items={filteredHistory}
+        itemHeight={collapsedItemHeight}
+        height="calc(100vh - 400px)"
+        gap={16}
+      >
+        {#snippet children({ item: entry, index })}
+          <div class="history-item-wrapper">
+            <Panel variant="bordered" padding="none">
+              <button class="entry-header" onclick={() => toggleExpand(entry.id)}>
+                <div class="entry-info">
+                  <div class="entry-title">
+                    <span class="skill-name">{entry.skillName}</span>
+                    <Badge variant={entry.success ? 'success' : 'error'} size="sm">
+                      {entry.success ? 'Success' : 'Error'}
+                    </Badge>
+                  </div>
+                  <div class="entry-meta">
+                    <span>{formatDate(entry.timestamp)}</span>
+                    <span class="separator">•</span>
+                    <Badge variant="default" size="sm">{entry.section}</Badge>
+                    <span class="separator">•</span>
+                    <Badge variant="default" size="sm">{entry.category}</Badge>
+                    {#if entry.metadata.cost}
+                      <span class="separator">•</span>
+                      <Badge variant="accent" size="sm">{formatCost(entry.metadata.cost)}</Badge>
                     {/if}
                   </div>
                 </div>
-              {/if}
+                <span class="expand-icon">{expandedId === entry.id ? '▼' : '▶'}</span>
+              </button>
 
-              {#if Object.keys(entry.inputs).length > 0}
-                <div class="details-section">
-                  <h3 class="section-title">Inputs</h3>
-                  <pre class="code-block">{JSON.stringify(entry.inputs, null, 2)}</pre>
+              {#if expandedId === entry.id}
+                <div class="entry-details">
+                  {#if entry.metadata}
+                    <div class="details-section">
+                      <h3 class="section-title">Metadata</h3>
+                      <div class="metadata-grid">
+                        {#if entry.metadata.sessionId}
+                          <div class="meta-item">
+                            <span class="meta-label">Session ID</span>
+                            <code>{entry.metadata.sessionId}</code>
+                          </div>
+                        {/if}
+                        {#if entry.metadata.model}
+                          <div class="meta-item">
+                            <span class="meta-label">Model</span>
+                            <code>{entry.metadata.model}</code>
+                          </div>
+                        {/if}
+                        {#if entry.metadata.tokensUsed}
+                          <div class="meta-item">
+                            <span class="meta-label">Tokens</span>
+                            <code>{entry.metadata.tokensUsed}</code>
+                          </div>
+                        {/if}
+                        {#if entry.metadata.latency}
+                          <div class="meta-item">
+                            <span class="meta-label">Latency</span>
+                            <code>{formatLatency(entry.metadata.latency)}</code>
+                          </div>
+                        {/if}
+                      </div>
+                    </div>
+                  {/if}
+
+                  {#if Object.keys(entry.inputs).length > 0}
+                    <div class="details-section">
+                      <h3 class="section-title">Inputs</h3>
+                      <pre class="code-block">{JSON.stringify(entry.inputs, null, 2)}</pre>
+                    </div>
+                  {/if}
+
+                  <div class="details-section">
+                    <h3 class="section-title">{entry.success ? 'Output' : 'Error'}</h3>
+                    {#if entry.success}
+                      <div class="output-box">{entry.output}</div>
+                    {:else}
+                      <Alert variant="error">{entry.error || 'Unknown error occurred'}</Alert>
+                    {/if}
+                  </div>
+
+                  <div class="entry-actions">
+                    <Button variant="danger" size="sm" on:click={() => deleteEntry(entry.id)}>
+                      Delete Entry
+                    </Button>
+                  </div>
                 </div>
               {/if}
-
-              <div class="details-section">
-                <h3 class="section-title">{entry.success ? 'Output' : 'Error'}</h3>
-                {#if entry.success}
-                  <div class="output-box">{entry.output}</div>
-                {:else}
-                  <Alert variant="error">{entry.error || 'Unknown error occurred'}</Alert>
-                {/if}
-              </div>
-
-              <div class="entry-actions">
-                <Button variant="danger" size="sm" on:click={() => deleteEntry(entry.id)}>
-                  Delete Entry
-                </Button>
-              </div>
-            </div>
-          {/if}
-        </Panel>
-      {/each}
+            </Panel>
+          </div>
+        {/snippet}
+      </VirtualList>
     </div>
-
-    {#if totalPages > 1}
-      <div class="pagination">
-        <Button
-          variant="secondary"
-          size="sm"
-          disabled={currentPage === 1}
-          on:click={() => (currentPage = Math.max(1, currentPage - 1))}
-        >
-          Previous
-        </Button>
-        <Badge variant="default">Page {currentPage} of {totalPages}</Badge>
-        <Button
-          variant="secondary"
-          size="sm"
-          disabled={currentPage === totalPages}
-          on:click={() => (currentPage = Math.min(totalPages, currentPage + 1))}
-        >
-          Next
-        </Button>
-      </div>
-    {/if}
   {/if}
 </div>
 
@@ -402,10 +387,13 @@
     margin: 0;
   }
 
-  .history-list {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-md);
+  .virtual-container {
+    width: 100%;
+  }
+
+  .history-item-wrapper {
+    width: 100%;
+    height: 100%;
   }
 
   .entry-header {

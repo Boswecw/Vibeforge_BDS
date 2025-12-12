@@ -2,11 +2,11 @@
   import { onMount } from 'svelte';
   import { skillRegistry } from '$lib/api/skillRegistry';
   import type { Skill } from '$lib/api/types';
-  import { Panel, Input, Select, Button, Badge, Alert, Pagination } from '$lib/components';
+  import { Panel, Input, Select, Button, Badge, Alert } from '$lib/components';
+  import VirtualList from '$lib/components/VirtualList.svelte';
   import { debounce } from '$lib/utils';
 
   let skills: Skill[] = $state([]);
-  let paginatedSkills: Skill[] = $state([]);
   let filteredSkills: Skill[] = $state([]);
   let loading = $state(true);
   let error = $state<string | null>(null);
@@ -18,13 +18,13 @@
   let selectedCategory = $state<string>('all');
   let selectedAccess = $state<'all' | 'PUBLIC' | 'BDS_ONLY'>('all');
 
-  // Pagination
-  let currentPage = $state(1);
-  const itemsPerPage = 50;
-
   // View modes
   let viewMode = $state<'grid' | 'list'>('grid');
   let sortBy = $state<'name' | 'section' | 'category'>('name');
+
+  // Virtual scrolling heights
+  const gridItemHeight = 300;
+  const listItemHeight = 200;
 
   // Sections and categories (derived from skills)
   let sections = $derived.by(() => {
@@ -123,11 +123,6 @@
     });
 
     filteredSkills = result;
-
-    // Apply pagination
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
-    paginatedSkills = result.slice(startIndex, endIndex);
   }
 
   // Reactive filtering
@@ -137,7 +132,6 @@
     selectedCategory;
     selectedAccess;
     sortBy;
-    currentPage;
     applyFilters();
   });
 
@@ -152,13 +146,6 @@
     selectedSection = 'all';
     selectedCategory = 'all';
     selectedAccess = 'all';
-    currentPage = 1;
-  }
-
-  function handlePageChange(page: number) {
-    currentPage = page;
-    // Scroll to top of results
-    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 </script>
 
@@ -268,63 +255,62 @@
         </div>
       </Panel>
     {:else}
-      <div class="skills-{viewMode}">
-        {#each paginatedSkills as skill (skill.id)}
-          <a href="/library/{skill.id}" class="skill-link">
-            <Panel variant="bordered" padding="lg">
-              <div class="skill-header">
-                <h3 class="skill-name">{skill.name}</h3>
-                <Badge
-                  variant={skill.access === 'PUBLIC' ? 'success' : 'warning'}
-                  size="sm"
-                >
-                  {skill.access}
-                </Badge>
-              </div>
+      <div class="virtual-container">
+        <VirtualList
+          items={filteredSkills}
+          itemHeight={viewMode === 'grid' ? gridItemHeight : listItemHeight}
+          height="calc(100vh - 400px)"
+          gap={viewMode === 'grid' ? 24 : 16}
+        >
+          {#snippet children({ item: skill, index })}
+            <div class="skill-wrapper {viewMode}">
+              <a href="/library/{skill.id}" class="skill-link">
+                <Panel variant="bordered" padding="lg">
+                  <div class="skill-header">
+                    <h3 class="skill-name">{skill.name}</h3>
+                    <Badge
+                      variant={skill.access === 'PUBLIC' ? 'success' : 'warning'}
+                      size="sm"
+                    >
+                      {skill.access}
+                    </Badge>
+                  </div>
 
-              <p class="skill-description">{skill.description}</p>
+                  <p class="skill-description">{skill.description}</p>
 
-              <div class="skill-meta">
-                <div class="meta-item">
-                  <span class="meta-label">Section:</span>
-                  <Badge variant="default" size="sm">{skill.section}</Badge>
-                </div>
-                <div class="meta-item">
-                  <span class="meta-label">Category:</span>
-                  <Badge variant="default" size="sm">{skill.category}</Badge>
-                </div>
-              </div>
+                  <div class="skill-meta">
+                    <div class="meta-item">
+                      <span class="meta-label">Section:</span>
+                      <Badge variant="default" size="sm">{skill.section}</Badge>
+                    </div>
+                    <div class="meta-item">
+                      <span class="meta-label">Category:</span>
+                      <Badge variant="default" size="sm">{skill.category}</Badge>
+                    </div>
+                  </div>
 
-              <div class="skill-tags">
-                {#each skill.tags.slice(0, 4) as tag}
-                  <Badge variant="info" size="sm" outline>{tag}</Badge>
-                {/each}
-                {#if skill.tags.length > 4}
-                  <span class="tag-more">+{skill.tags.length - 4}</span>
-                {/if}
-              </div>
+                  <div class="skill-tags">
+                    {#each skill.tags.slice(0, 4) as tag}
+                      <Badge variant="info" size="sm" outline>{tag}</Badge>
+                    {/each}
+                    {#if skill.tags.length > 4}
+                      <span class="tag-more">+{skill.tags.length - 4}</span>
+                    {/if}
+                  </div>
 
-              <div class="skill-footer">
-                <div class="cost-info">
-                  <span class="cost-label">Est. Cost:</span>
-                  <Badge variant="accent" size="sm">
-                    ${skill.estimatedCost.min.toFixed(3)} - ${skill.estimatedCost.max.toFixed(3)}
-                  </Badge>
-                </div>
-              </div>
-            </Panel>
-          </a>
-        {/each}
-
-      <!-- Pagination -->
-      {#if filteredSkills.length > itemsPerPage}
-        <Pagination
-          bind:currentPage
-          totalItems={filteredSkills.length}
-          {itemsPerPage}
-          onPageChange={handlePageChange}
-        />
-      {/if}
+                  <div class="skill-footer">
+                    <div class="cost-info">
+                      <span class="cost-label">Est. Cost:</span>
+                      <Badge variant="accent" size="sm">
+                        ${skill.estimatedCost.min.toFixed(3)} - ${skill.estimatedCost.max.toFixed(3)}
+                      </Badge>
+                    </div>
+                  </div>
+                </Panel>
+              </a>
+            </div>
+          {/snippet}
+        </VirtualList>
       </div>
     {/if}
   </div>
@@ -469,17 +455,15 @@
     margin: 0;
   }
 
-  /* Skills Grid */
-  .skills-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
-    gap: var(--spacing-lg);
+  /* Virtual Container */
+  .virtual-container {
+    width: 100%;
   }
 
-  .skills-list {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-md);
+  /* Skill Wrapper - handles grid/list layout within virtual items */
+  .skill-wrapper {
+    width: 100%;
+    height: 100%;
   }
 
   .skill-link {

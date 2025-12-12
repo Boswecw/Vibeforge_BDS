@@ -10,6 +10,7 @@ import { I as Input } from "../../../chunks/Input.js";
 import { S as Select } from "../../../chunks/Select.js";
 import { P as Panel } from "../../../chunks/Panel.js";
 /* empty css                                                  */
+import "../../../chunks/VirtualList.svelte_svelte_type_style_lang.js";
 function _page($$renderer, $$props) {
   $$renderer.component(($$renderer2) => {
     let history = [];

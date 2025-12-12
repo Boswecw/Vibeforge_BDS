@@ -1,4 +1,5 @@
-import { ab as ssr_context, a2 as bind_props, $ as escape_html } from "./index2.js";
+import { a2 as bind_props, $ as escape_html } from "./index2.js";
+import { o as onDestroy } from "./index-server.js";
 import { l as logError, c as classifyError } from "./errors.js";
 import "@sveltejs/kit/internal";
 import "./exports.js";
@@ -10,10 +11,6 @@ import { B as Button } from "./Button.js";
 /* empty css                                    */
 import { P as Panel } from "./Panel.js";
 import { A as Alert } from "./Alert.js";
-function onDestroy(fn) {
-  /** @type {SSRContext} */
-  ssr_context.r.on_destroy(fn);
-}
 const state = { errors: [], lastError: null, dismissedErrors: /* @__PURE__ */ new Set() };
 const errorStore = {
   get errors() {
