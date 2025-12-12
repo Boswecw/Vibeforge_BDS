@@ -1,5 +1,5 @@
 import { e as ensure_array_like, c as escape_html } from "../../../chunks/vendor.js";
-import { t as tokenManager } from "../../../chunks/Pagination.svelte_svelte_type_style_lang.js";
+import { t as tokenManager, a as skillsCache, g as generateCacheKey, b as staleWhileRevalidate, u as userCache } from "../../../chunks/UpdateBanner.svelte_svelte_type_style_lang.js";
 import { c as classifyError, s as shouldRetry, a as getRetryDelay, b as createNetworkError, d as createAuthenticationError } from "../../../chunks/errors.js";
 import "@sveltejs/kit/internal";
 import "@sveltejs/kit/internal/server";
@@ -145,15 +145,47 @@ class ForgeAgentsClient {
       throw err;
     }
   }
-  async listSkills() {
-    return this.authenticatedFetch("/api/v1/bds/skills");
+  async listSkills(options) {
+    const cacheKey = generateCacheKey("/api/v1/bds/skills");
+    if (options?.skipCache) {
+      const response = await this.authenticatedFetch("/api/v1/bds/skills");
+      skillsCache.set(cacheKey, response);
+      return response;
+    }
+    return staleWhileRevalidate(
+      cacheKey,
+      () => this.authenticatedFetch("/api/v1/bds/skills"),
+      skillsCache
+    );
   }
-  async getSkill(skillId) {
-    return this.authenticatedFetch(`/api/v1/bds/skills/${skillId}`);
+  async getSkill(skillId, options) {
+    const cacheKey = generateCacheKey(`/api/v1/bds/skills/${skillId}`);
+    if (options?.skipCache) {
+      const response = await this.authenticatedFetch(`/api/v1/bds/skills/${skillId}`);
+      skillsCache.set(cacheKey, response);
+      return response;
+    }
+    return staleWhileRevalidate(
+      cacheKey,
+      () => this.authenticatedFetch(`/api/v1/bds/skills/${skillId}`),
+      skillsCache
+    );
   }
-  async searchSkills(query) {
-    return this.authenticatedFetch(
-      `/api/v1/bds/skills/search?query=${encodeURIComponent(query)}`
+  async searchSkills(query, options) {
+    const cacheKey = generateCacheKey("/api/v1/bds/skills/search", { query });
+    if (options?.skipCache) {
+      const response = await this.authenticatedFetch(
+        `/api/v1/bds/skills/search?query=${encodeURIComponent(query)}`
+      );
+      userCache.set(cacheKey, response);
+      return response;
+    }
+    return staleWhileRevalidate(
+      cacheKey,
+      () => this.authenticatedFetch(
+        `/api/v1/bds/skills/search?query=${encodeURIComponent(query)}`
+      ),
+      userCache
     );
   }
   async invokeSkill(skillId, request) {

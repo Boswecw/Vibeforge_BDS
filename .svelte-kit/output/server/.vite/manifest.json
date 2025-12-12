@@ -48,7 +48,7 @@
     "imports": [
       "_vendor.js",
       "_errors.js",
-      "_Pagination.svelte_svelte_type_style_lang.js",
+      "_UpdateBanner.svelte_svelte_type_style_lang.js",
       "_Button.js",
       "_Panel.js",
       "_Alert.js"
@@ -65,17 +65,6 @@
     ],
     "css": [
       "_app/immutable/assets/Alert.DrJYitQI.css"
-    ]
-  },
-  "_Pagination.6m2tJR7l.css": {
-    "file": "_app/immutable/assets/Pagination.6m2tJR7l.css",
-    "src": "_Pagination.6m2tJR7l.css"
-  },
-  "_Pagination.svelte_svelte_type_style_lang.js": {
-    "file": "chunks/Pagination.svelte_svelte_type_style_lang.js",
-    "name": "Pagination.svelte_svelte_type_style_lang",
-    "css": [
-      "_app/immutable/assets/Pagination.6m2tJR7l.css"
     ]
   },
   "_Panel.js": {
@@ -98,6 +87,17 @@
       "_app/immutable/assets/Alert.DrJYitQI.css"
     ]
   },
+  "_UpdateBanner.CKyIu9bt.css": {
+    "file": "_app/immutable/assets/UpdateBanner.CKyIu9bt.css",
+    "src": "_UpdateBanner.CKyIu9bt.css"
+  },
+  "_UpdateBanner.svelte_svelte_type_style_lang.js": {
+    "file": "chunks/UpdateBanner.svelte_svelte_type_style_lang.js",
+    "name": "UpdateBanner.svelte_svelte_type_style_lang",
+    "css": [
+      "_app/immutable/assets/UpdateBanner.CKyIu9bt.css"
+    ]
+  },
   "_VirtualList.svelte_svelte_type_style_lang.js": {
     "file": "chunks/VirtualList.svelte_svelte_type_style_lang.js",
     "name": "VirtualList.svelte_svelte_type_style_lang"
@@ -114,19 +114,19 @@
     "file": "chunks/vendor.js",
     "name": "vendor"
   },
-  "node_modules/.pnpm/@sveltejs+kit@2.49.1_@sveltejs+vite-plugin-svelte@6.2.1_svelte@5.45.6_vite@6.4.1_@types_563d2955a653791d192d5f33e33046e1/node_modules/@sveltejs/kit/src/runtime/app/server/remote/index.js": {
+  "node_modules/.pnpm/@sveltejs+kit@2.49.1_@sveltejs+vite-plugin-svelte@6.2.1_svelte@5.45.6_vite@6.4.1_@types_44a92fb33a20a3326dd3dbcbaa974c46/node_modules/@sveltejs/kit/src/runtime/app/server/remote/index.js": {
     "file": "remote-entry.js",
     "name": "remote-entry",
-    "src": "node_modules/.pnpm/@sveltejs+kit@2.49.1_@sveltejs+vite-plugin-svelte@6.2.1_svelte@5.45.6_vite@6.4.1_@types_563d2955a653791d192d5f33e33046e1/node_modules/@sveltejs/kit/src/runtime/app/server/remote/index.js",
+    "src": "node_modules/.pnpm/@sveltejs+kit@2.49.1_@sveltejs+vite-plugin-svelte@6.2.1_svelte@5.45.6_vite@6.4.1_@types_44a92fb33a20a3326dd3dbcbaa974c46/node_modules/@sveltejs/kit/src/runtime/app/server/remote/index.js",
     "isEntry": true,
     "imports": [
       "_vendor.js"
     ]
   },
-  "node_modules/.pnpm/@sveltejs+kit@2.49.1_@sveltejs+vite-plugin-svelte@6.2.1_svelte@5.45.6_vite@6.4.1_@types_563d2955a653791d192d5f33e33046e1/node_modules/@sveltejs/kit/src/runtime/server/index.js": {
+  "node_modules/.pnpm/@sveltejs+kit@2.49.1_@sveltejs+vite-plugin-svelte@6.2.1_svelte@5.45.6_vite@6.4.1_@types_44a92fb33a20a3326dd3dbcbaa974c46/node_modules/@sveltejs/kit/src/runtime/server/index.js": {
     "file": "index.js",
     "name": "index",
-    "src": "node_modules/.pnpm/@sveltejs+kit@2.49.1_@sveltejs+vite-plugin-svelte@6.2.1_svelte@5.45.6_vite@6.4.1_@types_563d2955a653791d192d5f33e33046e1/node_modules/@sveltejs/kit/src/runtime/server/index.js",
+    "src": "node_modules/.pnpm/@sveltejs+kit@2.49.1_@sveltejs+vite-plugin-svelte@6.2.1_svelte@5.45.6_vite@6.4.1_@types_44a92fb33a20a3326dd3dbcbaa974c46/node_modules/@sveltejs/kit/src/runtime/server/index.js",
     "isEntry": true,
     "imports": [
       "_vendor.js"
@@ -175,7 +175,7 @@
     "isEntry": true,
     "imports": [
       "_vendor.js",
-      "_Pagination.svelte_svelte_type_style_lang.js",
+      "_UpdateBanner.svelte_svelte_type_style_lang.js",
       "_ErrorBoundary.js",
       "_errors.js",
       "_Button.js",
@@ -183,7 +183,7 @@
       "_Alert.js"
     ],
     "css": [
-      "_app/immutable/assets/_layout.dOf43C0I.css",
+      "_app/immutable/assets/_layout.Kvc-9qTW.css",
       "_app/immutable/assets/Alert.DrJYitQI.css"
     ]
   },
@@ -194,7 +194,7 @@
     "isEntry": true,
     "imports": [
       "_vendor.js",
-      "_Pagination.svelte_svelte_type_style_lang.js",
+      "_UpdateBanner.svelte_svelte_type_style_lang.js",
       "_Button.js",
       "_Panel.js"
     ],
@@ -228,7 +228,7 @@
     "imports": [
       "_vendor.js",
       "_templates.js",
-      "_Pagination.svelte_svelte_type_style_lang.js",
+      "_UpdateBanner.svelte_svelte_type_style_lang.js",
       "_Panel.js",
       "_Alert.js"
     ],
@@ -245,7 +245,7 @@
     "imports": [
       "_vendor.js",
       "_templates.js",
-      "_Pagination.svelte_svelte_type_style_lang.js",
+      "_UpdateBanner.svelte_svelte_type_style_lang.js",
       "_Button.js",
       "_Input.js",
       "_Select.js",
@@ -264,7 +264,7 @@
     "isEntry": true,
     "imports": [
       "_vendor.js",
-      "_Pagination.svelte_svelte_type_style_lang.js",
+      "_UpdateBanner.svelte_svelte_type_style_lang.js",
       "_Button.js",
       "_Select.js",
       "_Panel.js",
@@ -349,7 +349,7 @@
     "isEntry": true,
     "imports": [
       "_vendor.js",
-      "_Pagination.svelte_svelte_type_style_lang.js",
+      "_UpdateBanner.svelte_svelte_type_style_lang.js",
       "_Button.js",
       "_Input.js",
       "_Select.js",
@@ -368,7 +368,7 @@
     "isEntry": true,
     "imports": [
       "_vendor.js",
-      "_Pagination.svelte_svelte_type_style_lang.js",
+      "_UpdateBanner.svelte_svelte_type_style_lang.js",
       "_Button.js",
       "_Input.js",
       "_Select.js",
@@ -388,7 +388,7 @@
     "isEntry": true,
     "imports": [
       "_vendor.js",
-      "_Pagination.svelte_svelte_type_style_lang.js"
+      "_UpdateBanner.svelte_svelte_type_style_lang.js"
     ],
     "css": [
       "_app/immutable/assets/_page.P4BTJECW.css",
@@ -402,7 +402,7 @@
     "isEntry": true,
     "imports": [
       "_vendor.js",
-      "_Pagination.svelte_svelte_type_style_lang.js",
+      "_UpdateBanner.svelte_svelte_type_style_lang.js",
       "_Button.js",
       "_Input.js",
       "_Panel.js",
@@ -424,7 +424,7 @@
       "_vendor.js",
       "_Button.js",
       "_Input.js",
-      "_Pagination.svelte_svelte_type_style_lang.js",
+      "_UpdateBanner.svelte_svelte_type_style_lang.js",
       "_Alert.js"
     ],
     "css": [
@@ -438,7 +438,7 @@
     "src": "src/routes/settings/+page.svelte",
     "isEntry": true,
     "imports": [
-      "_Pagination.svelte_svelte_type_style_lang.js",
+      "_UpdateBanner.svelte_svelte_type_style_lang.js",
       "_vendor.js",
       "_Button.js",
       "_Input.js",
@@ -458,7 +458,7 @@
     "isEntry": true,
     "imports": [
       "_vendor.js",
-      "_Pagination.svelte_svelte_type_style_lang.js",
+      "_UpdateBanner.svelte_svelte_type_style_lang.js",
       "_errors.js",
       "_Button.js",
       "_Panel.js",
@@ -477,7 +477,7 @@
     "isEntry": true,
     "imports": [
       "_vendor.js",
-      "_Pagination.svelte_svelte_type_style_lang.js",
+      "_UpdateBanner.svelte_svelte_type_style_lang.js",
       "_Button.js",
       "_Panel.js"
     ],
@@ -493,7 +493,7 @@
     "isEntry": true,
     "imports": [
       "_vendor.js",
-      "_Pagination.svelte_svelte_type_style_lang.js",
+      "_UpdateBanner.svelte_svelte_type_style_lang.js",
       "_Button.js",
       "_Panel.js",
       "_Badge.js",

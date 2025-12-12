@@ -2,7 +2,7 @@ import { a as attr, d as bind_props, f as fallback, e as ensure_array_like, c as
 import { A as AGENT_TEMPLATES } from "../../../../chunks/templates.js";
 import "@sveltejs/kit/internal";
 import "@sveltejs/kit/internal/server";
-import "../../../../chunks/Pagination.svelte_svelte_type_style_lang.js";
+import "../../../../chunks/UpdateBanner.svelte_svelte_type_style_lang.js";
 /* empty css                                                     */
 import { P as Panel } from "../../../../chunks/Panel.js";
 import { A as Alert } from "../../../../chunks/Alert.js";

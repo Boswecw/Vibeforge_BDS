@@ -2,6 +2,7 @@ import { sveltekit } from '@sveltejs/kit/vite';
 import { defineConfig } from 'vite';
 import tailwindcss from '@tailwindcss/vite';
 import { visualizer } from 'rollup-plugin-visualizer';
+import { workboxPlugin } from './vite-plugin-workbox';
 
 export default defineConfig({
 	plugins: [
@@ -12,7 +13,8 @@ export default defineConfig({
 			open: false,
 			gzipSize: true,
 			brotliSize: true
-		})
+		}),
+		workboxPlugin()
 	],
 	server: {
 		port: 4173

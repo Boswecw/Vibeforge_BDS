@@ -1,14 +1,33 @@
 <script lang="ts">
+  import { onMount } from 'svelte';
   import '../app.css';
   import { Sidebar, Header, ErrorBoundary, ErrorNotifications } from '$lib/components';
   import OfflineBanner from '$lib/components/OfflineBanner.svelte';
+  import UpdateBanner from '$lib/components/UpdateBanner.svelte';
+  import { registerServiceWorker, setupOnlineOfflineListeners } from '$lib/utils/serviceWorker';
 
   // Show error details in development mode
   const showErrorDetails = typeof window !== 'undefined' && window.location.hostname === 'localhost';
+
+  // Register service worker on mount (production only)
+  onMount(() => {
+    if (import.meta.env.PROD) {
+      registerServiceWorker();
+    }
+
+    // Setup online/offline listeners
+    setupOnlineOfflineListeners(
+      () => console.log('App is now online'),
+      () => console.log('App is now offline')
+    );
+  });
 </script>
 
 <!-- VibeForge_BDS Layout Structure -->
 <ErrorBoundary showDetails={showErrorDetails}>
+  <!-- Update Banner (new version available) -->
+  <UpdateBanner />
+
   <!-- Offline Banner -->
   <OfflineBanner />
 

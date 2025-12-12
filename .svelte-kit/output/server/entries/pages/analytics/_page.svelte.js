@@ -1,7 +1,7 @@
 import { c as escape_html, i as await_block, e as ensure_array_like } from "../../../chunks/vendor.js";
 import "@sveltejs/kit/internal";
 import "@sveltejs/kit/internal/server";
-import "../../../chunks/Pagination.svelte_svelte_type_style_lang.js";
+import "../../../chunks/UpdateBanner.svelte_svelte_type_style_lang.js";
 import { B as Button } from "../../../chunks/Button.js";
 /* empty css                                                  */
 import { S as Select } from "../../../chunks/Select.js";

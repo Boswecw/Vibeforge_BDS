@@ -7,6 +7,12 @@ import {
 	getRetryDelay,
 	type AppError
 } from '$lib/utils/errors';
+import {
+	skillsCache,
+	userCache,
+	generateCacheKey,
+	staleWhileRevalidate
+} from '$lib/utils/cache';
 import type {
 	AuthResponse,
 	ListSkillsResponse,
@@ -181,17 +187,62 @@ export class ForgeAgentsClient {
 		}
 	}
 
-	async listSkills(): Promise<ListSkillsResponse> {
-		return this.authenticatedFetch<ListSkillsResponse>('/api/v1/bds/skills');
+	async listSkills(options?: { skipCache?: boolean }): Promise<ListSkillsResponse> {
+		const cacheKey = generateCacheKey('/api/v1/bds/skills');
+
+		// Skip cache if requested
+		if (options?.skipCache) {
+			const response = await this.authenticatedFetch<ListSkillsResponse>('/api/v1/bds/skills');
+			skillsCache.set(cacheKey, response);
+			return response;
+		}
+
+		// Use stale-while-revalidate strategy
+		return staleWhileRevalidate(
+			cacheKey,
+			() => this.authenticatedFetch<ListSkillsResponse>('/api/v1/bds/skills'),
+			skillsCache
+		);
 	}
 
-	async getSkill(skillId: string): Promise<any> {
-		return this.authenticatedFetch<any>(`/api/v1/bds/skills/${skillId}`);
+	async getSkill(skillId: string, options?: { skipCache?: boolean }): Promise<any> {
+		const cacheKey = generateCacheKey(`/api/v1/bds/skills/${skillId}`);
+
+		// Skip cache if requested
+		if (options?.skipCache) {
+			const response = await this.authenticatedFetch<any>(`/api/v1/bds/skills/${skillId}`);
+			skillsCache.set(cacheKey, response);
+			return response;
+		}
+
+		// Use stale-while-revalidate strategy
+		return staleWhileRevalidate(
+			cacheKey,
+			() => this.authenticatedFetch<any>(`/api/v1/bds/skills/${skillId}`),
+			skillsCache
+		);
 	}
 
-	async searchSkills(query: string): Promise<ListSkillsResponse> {
-		return this.authenticatedFetch<ListSkillsResponse>(
-			`/api/v1/bds/skills/search?query=${encodeURIComponent(query)}`
+	async searchSkills(query: string, options?: { skipCache?: boolean }): Promise<ListSkillsResponse> {
+		const cacheKey = generateCacheKey('/api/v1/bds/skills/search', { query });
+
+		// Skip cache if requested
+		if (options?.skipCache) {
+			const response = await this.authenticatedFetch<ListSkillsResponse>(
+				`/api/v1/bds/skills/search?query=${encodeURIComponent(query)}`
+			);
+			userCache.set(cacheKey, response);
+			return response;
+		}
+
+		// Use stale-while-revalidate strategy (shorter TTL for search)
+		return staleWhileRevalidate(
+			cacheKey,
+			() =>
+				this.authenticatedFetch<ListSkillsResponse>(
+					`/api/v1/bds/skills/search?query=${encodeURIComponent(query)}`
+				),
+			userCache
 		);
 	}
 

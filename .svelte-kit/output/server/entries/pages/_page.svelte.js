@@ -1,5 +1,5 @@
 import { c as escape_html } from "../../chunks/vendor.js";
-import "../../chunks/Pagination.svelte_svelte_type_style_lang.js";
+import "../../chunks/UpdateBanner.svelte_svelte_type_style_lang.js";
 import "@sveltejs/kit/internal";
 import "@sveltejs/kit/internal/server";
 import { B as Button } from "../../chunks/Button.js";

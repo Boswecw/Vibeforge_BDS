@@ -1,5 +1,5 @@
 import { s as store_get, e as ensure_array_like, a as attr, b as attr_class, c as escape_html, u as unsubscribe_stores, p as page, f as fallback, d as bind_props, g as slot } from "../../chunks/vendor.js";
-import "../../chunks/Pagination.svelte_svelte_type_style_lang.js";
+import { s as serviceWorkerState } from "../../chunks/UpdateBanner.svelte_svelte_type_style_lang.js";
 /* empty css                                               */
 import { e as errorStore, E as ErrorBoundary } from "../../chunks/ErrorBoundary.js";
 import { g as getErrorBadgeVariant } from "../../chunks/errors.js";
@@ -198,6 +198,18 @@ function ErrorNotifications($$renderer, $$props) {
     $$renderer2.push(`<!--]--></div>`);
   });
 }
+function UpdateBanner($$renderer, $$props) {
+  $$renderer.component(($$renderer2) => {
+    let show = serviceWorkerState.updateAvailable;
+    if (show) {
+      $$renderer2.push("<!--[-->");
+      $$renderer2.push(`<div class="update-banner svelte-z1ckp5"><div class="update-content svelte-z1ckp5"><div class="update-icon svelte-z1ckp5">🎉</div> <div class="update-text svelte-z1ckp5"><strong class="svelte-z1ckp5">New version available!</strong> <span class="svelte-z1ckp5">Click "Update" to get the latest features and improvements.</span></div> <div class="update-actions svelte-z1ckp5"><button class="btn-update svelte-z1ckp5">Update Now</button> <button class="btn-dismiss svelte-z1ckp5">Later</button></div></div></div>`);
+    } else {
+      $$renderer2.push("<!--[!-->");
+    }
+    $$renderer2.push(`<!--]-->`);
+  });
+}
 const state = {
   isOnline: typeof navigator !== "undefined" ? navigator.onLine : true,
   wasOffline: false,
@@ -243,22 +255,26 @@ function OfflineBanner($$renderer, $$props) {
   });
 }
 function _layout($$renderer, $$props) {
-  const showErrorDetails = typeof window !== "undefined" && window.location.hostname === "localhost";
-  ErrorBoundary($$renderer, {
-    showDetails: showErrorDetails,
-    children: ($$renderer2) => {
-      OfflineBanner($$renderer2);
-      $$renderer2.push(`<!----> <div class="app-layout svelte-12qhfyh">`);
-      Sidebar($$renderer2);
-      $$renderer2.push(`<!----> <div class="app-content svelte-12qhfyh">`);
-      Header($$renderer2, {});
-      $$renderer2.push(`<!----> <main class="main-content svelte-12qhfyh"><!--[-->`);
-      slot($$renderer2, $$props, "default", {});
-      $$renderer2.push(`<!--]--></main></div> `);
-      ErrorNotifications($$renderer2);
-      $$renderer2.push(`<!----></div>`);
-    },
-    $$slots: { default: true }
+  $$renderer.component(($$renderer2) => {
+    const showErrorDetails = typeof window !== "undefined" && window.location.hostname === "localhost";
+    ErrorBoundary($$renderer2, {
+      showDetails: showErrorDetails,
+      children: ($$renderer3) => {
+        UpdateBanner($$renderer3);
+        $$renderer3.push(`<!----> `);
+        OfflineBanner($$renderer3);
+        $$renderer3.push(`<!----> <div class="app-layout svelte-12qhfyh">`);
+        Sidebar($$renderer3);
+        $$renderer3.push(`<!----> <div class="app-content svelte-12qhfyh">`);
+        Header($$renderer3, {});
+        $$renderer3.push(`<!----> <main class="main-content svelte-12qhfyh"><!--[-->`);
+        slot($$renderer3, $$props, "default", {});
+        $$renderer3.push(`<!--]--></main></div> `);
+        ErrorNotifications($$renderer3);
+        $$renderer3.push(`<!----></div>`);
+      },
+      $$slots: { default: true }
+    });
   });
 }
 export {

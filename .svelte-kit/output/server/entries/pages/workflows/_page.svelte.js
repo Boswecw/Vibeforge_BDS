@@ -1,7 +1,7 @@
 import { c as escape_html, e as ensure_array_like, b as attr_class } from "../../../chunks/vendor.js";
 import "@sveltejs/kit/internal";
 import "@sveltejs/kit/internal/server";
-import "../../../chunks/Pagination.svelte_svelte_type_style_lang.js";
+import "../../../chunks/UpdateBanner.svelte_svelte_type_style_lang.js";
 import { B as Button } from "../../../chunks/Button.js";
 /* empty css                                                  */
 import { P as Panel } from "../../../chunks/Panel.js";

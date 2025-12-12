@@ -1,4 +1,4 @@
-import "../../../chunks/Pagination.svelte_svelte_type_style_lang.js";
+import "../../../chunks/UpdateBanner.svelte_svelte_type_style_lang.js";
 import "@sveltejs/kit/internal";
 import "../../../chunks/vendor.js";
 import "@sveltejs/kit/internal/server";

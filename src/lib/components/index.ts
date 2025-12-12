@@ -30,3 +30,6 @@ export { default as StreamingExecutionPanel } from './StreamingExecutionPanel.sv
 
 // Navigation Components
 export { default as Pagination } from './Pagination.svelte';
+
+// System Components
+export { default as UpdateBanner } from './UpdateBanner.svelte';

@@ -1,0 +1,1 @@
+import{f as e,S as s,h as l,m as v,r as d}from"../chunks/DkYuCCRR.js";var i=e('<div class="architecture-layout svelte-ntr07v"><!></div>');function c(t,o){var a=i(),r=v(a);s(r,o,"default",{}),d(a),l(t,a)}export{c as component};

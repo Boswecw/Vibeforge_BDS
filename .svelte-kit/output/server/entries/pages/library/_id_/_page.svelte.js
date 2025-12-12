@@ -1,5 +1,5 @@
 import { s as store_get, u as unsubscribe_stores, p as page } from "../../../../chunks/vendor.js";
-import "../../../../chunks/Pagination.svelte_svelte_type_style_lang.js";
+import "../../../../chunks/UpdateBanner.svelte_svelte_type_style_lang.js";
 /* empty css                                                     */
 function _page($$renderer, $$props) {
   $$renderer.component(($$renderer2) => {
