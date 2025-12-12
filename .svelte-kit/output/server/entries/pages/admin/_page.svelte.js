@@ -1,4 +1,4 @@
-import { $ as escape_html, _ as attr_class, Y as ensure_array_like, a4 as stringify } from "../../../chunks/index2.js";
+import { c as escape_html, b as attr_class, e as ensure_array_like, h as stringify } from "../../../chunks/vendor.js";
 import { P as Panel } from "../../../chunks/Panel.js";
 import { B as Badge } from "../../../chunks/Badge.js";
 /* empty css                                                  */

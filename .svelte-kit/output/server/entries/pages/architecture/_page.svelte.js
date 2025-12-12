@@ -1,4 +1,4 @@
-import { Y as ensure_array_like, a7 as attr_style, $ as escape_html, a4 as stringify, _ as attr_class, a2 as bind_props, a8 as head } from "../../../chunks/index2.js";
+import { e as ensure_array_like, j as attr_style, c as escape_html, h as stringify, b as attr_class, d as bind_props, k as head } from "../../../chunks/vendor.js";
 const tiers = [
   {
     id: "consumer",

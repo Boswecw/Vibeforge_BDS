@@ -1,4 +1,4 @@
-import { a1 as fallback, _ as attr_class, Z as attr, $ as escape_html, aa as clsx, a2 as bind_props } from "./index2.js";
+import { f as fallback, b as attr_class, a as attr, c as escape_html, l as clsx, d as bind_props } from "./vendor.js";
 /* empty css                                    */
 function Input($$renderer, $$props) {
   $$renderer.component(($$renderer2) => {

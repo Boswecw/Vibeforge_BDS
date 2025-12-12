@@ -1,14 +1,10 @@
-import { X as store_get, Y as ensure_array_like, Z as attr, _ as attr_class, $ as escape_html, a0 as unsubscribe_stores, a1 as fallback, a2 as bind_props, a3 as slot } from "../../chunks/index2.js";
-import { p as page } from "../../chunks/stores.js";
+import { s as store_get, e as ensure_array_like, a as attr, b as attr_class, c as escape_html, u as unsubscribe_stores, p as page, f as fallback, d as bind_props, g as slot } from "../../chunks/vendor.js";
 import "../../chunks/Pagination.svelte_svelte_type_style_lang.js";
 /* empty css                                               */
 import { e as errorStore, E as ErrorBoundary } from "../../chunks/ErrorBoundary.js";
 import { g as getErrorBadgeVariant } from "../../chunks/errors.js";
 import "@sveltejs/kit/internal";
-import "../../chunks/exports.js";
-import "../../chunks/utils.js";
 import "@sveltejs/kit/internal/server";
-import "../../chunks/state.svelte.js";
 import { B as Button } from "../../chunks/Button.js";
 import { B as Badge } from "../../chunks/Badge.js";
 import { A as Alert } from "../../chunks/Alert.js";
@@ -44,7 +40,7 @@ function Sidebar($$renderer, $$props) {
     const each_array = ensure_array_like(navItems);
     for (let $$index = 0, $$length = each_array.length; $$index < $$length; $$index++) {
       let item = each_array[$$index];
-      $$renderer2.push(`<li class="nav-item svelte-129hoe0"><a${attr("href", item.href)}${attr_class("nav-link svelte-129hoe0", void 0, { "active": isActive(item.href) })}${attr("aria-current", isActive(item.href) ? "page" : void 0)}>`);
+      $$renderer2.push(`<li class="nav-item svelte-129hoe0"><a${attr("href", item.href)}${attr_class("nav-link svelte-129hoe0", void 0, { "active": isActive(item.href) })}${attr("aria-current", isActive(item.href) ? "page" : void 0)} data-sveltekit-preload-data="hover">`);
       if (item.icon) {
         $$renderer2.push("<!--[-->");
         $$renderer2.push(`<span class="nav-icon svelte-129hoe0">${escape_html(item.icon)}</span>`);

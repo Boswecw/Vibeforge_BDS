@@ -1,4 +1,4 @@
-import { a1 as fallback, Z as attr, _ as attr_class, aa as clsx, a3 as slot, a2 as bind_props } from "./index2.js";
+import { f as fallback, a as attr, b as attr_class, l as clsx, g as slot, d as bind_props } from "./vendor.js";
 /* empty css                                    */
 function Button($$renderer, $$props) {
   $$renderer.component(($$renderer2) => {

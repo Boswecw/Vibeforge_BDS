@@ -1,11 +1,7 @@
-import { a2 as bind_props, $ as escape_html } from "./index2.js";
-import { o as onDestroy } from "./index-server.js";
+import { o as onDestroy, d as bind_props, c as escape_html } from "./vendor.js";
 import { l as logError, c as classifyError } from "./errors.js";
 import "@sveltejs/kit/internal";
-import "./exports.js";
-import "./utils.js";
 import "@sveltejs/kit/internal/server";
-import "./state.svelte.js";
 import "./Pagination.svelte_svelte_type_style_lang.js";
 import { B as Button } from "./Button.js";
 /* empty css                                    */

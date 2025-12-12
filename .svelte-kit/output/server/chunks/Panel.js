@@ -1,4 +1,4 @@
-import { ac as sanitize_slots, a1 as fallback, _ as attr_class, aa as clsx, a3 as slot, $ as escape_html, a2 as bind_props } from "./index2.js";
+import { m as sanitize_slots, f as fallback, b as attr_class, l as clsx, g as slot, c as escape_html, d as bind_props } from "./vendor.js";
 /* empty css                                    */
 function Panel($$renderer, $$props) {
   const $$slots = sanitize_slots($$props);

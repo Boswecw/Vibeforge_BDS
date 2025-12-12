@@ -1,35 +1,12 @@
-import { a7 as attr_style, a4 as stringify, $ as escape_html, Y as ensure_array_like } from "../../../chunks/index2.js";
+import { c as escape_html, i as await_block, e as ensure_array_like } from "../../../chunks/vendor.js";
 import "@sveltejs/kit/internal";
-import "../../../chunks/exports.js";
-import "../../../chunks/utils.js";
 import "@sveltejs/kit/internal/server";
-import "../../../chunks/state.svelte.js";
 import "../../../chunks/Pagination.svelte_svelte_type_style_lang.js";
 import { B as Button } from "../../../chunks/Button.js";
 /* empty css                                                  */
 import { S as Select } from "../../../chunks/Select.js";
 import { P as Panel } from "../../../chunks/Panel.js";
 import { B as Badge } from "../../../chunks/Badge.js";
-import { o as onDestroy } from "../../../chunks/index-server.js";
-import { Chart, LineController, LineElement, PointElement, LinearScale, CategoryScale, Title, Tooltip, Legend, Filler, BarController, BarElement } from "chart.js";
-function LineChart($$renderer, $$props) {
-  $$renderer.component(($$renderer2) => {
-    Chart.register(LineController, LineElement, PointElement, LinearScale, CategoryScale, Title, Tooltip, Legend, Filler);
-    let { labels, datasets, title, height = 300 } = $$props;
-    onDestroy(() => {
-    });
-    $$renderer2.push(`<div class="chart-container svelte-dtmdr8"${attr_style(`height: ${stringify(height)}px;`)}><canvas></canvas></div>`);
-  });
-}
-function BarChart($$renderer, $$props) {
-  $$renderer.component(($$renderer2) => {
-    Chart.register(BarController, BarElement, LinearScale, CategoryScale, Title, Tooltip, Legend);
-    let { labels, datasets, title, height = 300, horizontal = false } = $$props;
-    onDestroy(() => {
-    });
-    $$renderer2.push(`<div class="chart-container svelte-1m1tdtt"${attr_style(`height: ${stringify(height)}px;`)}><canvas></canvas></div>`);
-  });
-}
 class AnalyticsService {
   storageKey = "execution_history";
   /**
@@ -269,6 +246,8 @@ class AnalyticsService {
 const analyticsService = new AnalyticsService();
 function _page($$renderer, $$props) {
   $$renderer.component(($$renderer2) => {
+    const LineChartPromise = import("../../../chunks/LineChart.js");
+    const BarChartPromise = import("../../../chunks/BarChart.js");
     let analytics = null;
     let loading = true;
     let timeRange = "7d";
@@ -495,12 +474,23 @@ function _page($$renderer, $$props) {
             padding: "lg",
             children: ($$renderer4) => {
               $$renderer4.push(`<h2 class="chart-title svelte-1m0gshv">Invocations &amp; Errors Over Time</h2> `);
-              LineChart($$renderer4, {
-                labels: invocationsChartData.labels,
-                datasets: invocationsChartData.datasets,
-                height: 300
-              });
-              $$renderer4.push(`<!---->`);
+              await_block(
+                $$renderer4,
+                LineChartPromise,
+                () => {
+                  $$renderer4.push(`<div class="chart-loading svelte-1m0gshv"><div class="spinner svelte-1m0gshv"></div> <p class="svelte-1m0gshv">Loading chart...</p></div>`);
+                },
+                ({ default: LineChart }) => {
+                  $$renderer4.push(`<!---->`);
+                  LineChart($$renderer4, {
+                    labels: invocationsChartData.labels,
+                    datasets: invocationsChartData.datasets,
+                    height: 300
+                  });
+                  $$renderer4.push(`<!---->`);
+                }
+              );
+              $$renderer4.push(`<!--]-->`);
             },
             $$slots: { default: true }
           });
@@ -510,12 +500,23 @@ function _page($$renderer, $$props) {
             padding: "lg",
             children: ($$renderer4) => {
               $$renderer4.push(`<h2 class="chart-title svelte-1m0gshv">Cost Trend</h2> `);
-              LineChart($$renderer4, {
-                labels: costChartData.labels,
-                datasets: costChartData.datasets,
-                height: 300
-              });
-              $$renderer4.push(`<!---->`);
+              await_block(
+                $$renderer4,
+                LineChartPromise,
+                () => {
+                  $$renderer4.push(`<div class="chart-loading svelte-1m0gshv"><div class="spinner svelte-1m0gshv"></div> <p class="svelte-1m0gshv">Loading chart...</p></div>`);
+                },
+                ({ default: LineChart }) => {
+                  $$renderer4.push(`<!---->`);
+                  LineChart($$renderer4, {
+                    labels: costChartData.labels,
+                    datasets: costChartData.datasets,
+                    height: 300
+                  });
+                  $$renderer4.push(`<!---->`);
+                }
+              );
+              $$renderer4.push(`<!--]-->`);
             },
             $$slots: { default: true }
           });
@@ -525,13 +526,24 @@ function _page($$renderer, $$props) {
             padding: "lg",
             children: ($$renderer4) => {
               $$renderer4.push(`<h2 class="chart-title svelte-1m0gshv">Top 10 Skills by Usage</h2> `);
-              BarChart($$renderer4, {
-                labels: topSkillsChartData.labels,
-                datasets: topSkillsChartData.datasets,
-                height: 350,
-                horizontal: true
-              });
-              $$renderer4.push(`<!---->`);
+              await_block(
+                $$renderer4,
+                BarChartPromise,
+                () => {
+                  $$renderer4.push(`<div class="chart-loading svelte-1m0gshv"><div class="spinner svelte-1m0gshv"></div> <p class="svelte-1m0gshv">Loading chart...</p></div>`);
+                },
+                ({ default: BarChart }) => {
+                  $$renderer4.push(`<!---->`);
+                  BarChart($$renderer4, {
+                    labels: topSkillsChartData.labels,
+                    datasets: topSkillsChartData.datasets,
+                    height: 350,
+                    horizontal: true
+                  });
+                  $$renderer4.push(`<!---->`);
+                }
+              );
+              $$renderer4.push(`<!--]-->`);
             },
             $$slots: { default: true }
           });
@@ -541,12 +553,23 @@ function _page($$renderer, $$props) {
             padding: "lg",
             children: ($$renderer4) => {
               $$renderer4.push(`<h2 class="chart-title svelte-1m0gshv">Model Usage Distribution</h2> `);
-              BarChart($$renderer4, {
-                labels: modelUsageChartData.labels,
-                datasets: modelUsageChartData.datasets,
-                height: 350
-              });
-              $$renderer4.push(`<!---->`);
+              await_block(
+                $$renderer4,
+                BarChartPromise,
+                () => {
+                  $$renderer4.push(`<div class="chart-loading svelte-1m0gshv"><div class="spinner svelte-1m0gshv"></div> <p class="svelte-1m0gshv">Loading chart...</p></div>`);
+                },
+                ({ default: BarChart }) => {
+                  $$renderer4.push(`<!---->`);
+                  BarChart($$renderer4, {
+                    labels: modelUsageChartData.labels,
+                    datasets: modelUsageChartData.datasets,
+                    height: 350
+                  });
+                  $$renderer4.push(`<!---->`);
+                }
+              );
+              $$renderer4.push(`<!--]-->`);
             },
             $$slots: { default: true }
           });

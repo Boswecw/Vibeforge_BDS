@@ -1,4 +1,4 @@
-import { a1 as fallback, _ as attr_class, Z as attr, $ as escape_html, Y as ensure_array_like, a2 as bind_props } from "./index2.js";
+import { f as fallback, b as attr_class, a as attr, c as escape_html, e as ensure_array_like, d as bind_props } from "./vendor.js";
 /* empty css                                    */
 function Select($$renderer, $$props) {
   $$renderer.component(($$renderer2) => {

@@ -1,5 +1,4 @@
-import { X as store_get, $ as escape_html, a0 as unsubscribe_stores } from "../../chunks/index2.js";
-import { p as page } from "../../chunks/stores.js";
+import { s as store_get, c as escape_html, u as unsubscribe_stores, p as page } from "../../chunks/vendor.js";
 function _error($$renderer, $$props) {
   $$renderer.component(($$renderer2) => {
     var $$store_subs;

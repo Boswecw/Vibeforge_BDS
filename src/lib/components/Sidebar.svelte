@@ -55,6 +55,7 @@
             class="nav-link"
             class:active={isActive(item.href)}
             aria-current={isActive(item.href) ? 'page' : undefined}
+            data-sveltekit-preload-data="hover"
           >
             {#if item.icon}
               <span class="nav-icon">{item.icon}</span>

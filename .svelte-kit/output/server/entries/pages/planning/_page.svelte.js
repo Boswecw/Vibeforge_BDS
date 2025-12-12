@@ -1,6 +1,6 @@
 import { E as ErrorBoundary } from "../../../chunks/ErrorBoundary.js";
 import { P as Panel } from "../../../chunks/Panel.js";
-import { a1 as fallback, _ as attr_class, Z as attr, $ as escape_html, aa as clsx, a2 as bind_props } from "../../../chunks/index2.js";
+import { f as fallback, b as attr_class, a as attr, c as escape_html, l as clsx, d as bind_props } from "../../../chunks/vendor.js";
 import { B as Button } from "../../../chunks/Button.js";
 import { I as Input } from "../../../chunks/Input.js";
 import "../../../chunks/Pagination.svelte_svelte_type_style_lang.js";

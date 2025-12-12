@@ -1,13 +1,15 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { Panel, Badge, Button, Select } from '$lib/components';
-	import LineChart from '$lib/components/charts/LineChart.svelte';
-	import BarChart from '$lib/components/charts/BarChart.svelte';
 	import {
 		analyticsService,
 		type AnalyticsData,
 		type TimeRange
 	} from '$lib/services/analyticsService';
+
+	// Lazy load chart components
+	const LineChartPromise = import('$lib/components/charts/LineChart.svelte');
+	const BarChartPromise = import('$lib/components/charts/BarChart.svelte');
 
 	// State
 	let analytics = $state<AnalyticsData | null>(null);
@@ -246,18 +248,32 @@
 		<div class="charts-row">
 			<Panel variant="bordered" padding="lg">
 				<h2 class="chart-title">Invocations & Errors Over Time</h2>
-				<LineChart
-					labels={invocationsChartData.labels}
-					datasets={invocationsChartData.datasets}
-					height={300}
-				/>
+				{#await LineChartPromise}
+					<div class="chart-loading">
+						<div class="spinner"></div>
+						<p>Loading chart...</p>
+					</div>
+				{:then { default: LineChart }}
+					<LineChart
+						labels={invocationsChartData.labels}
+						datasets={invocationsChartData.datasets}
+						height={300}
+					/>
+				{/await}
 			</Panel>
 		</div>
 
 		<div class="charts-row">
 			<Panel variant="bordered" padding="lg">
 				<h2 class="chart-title">Cost Trend</h2>
-				<LineChart labels={costChartData.labels} datasets={costChartData.datasets} height={300} />
+				{#await LineChartPromise}
+					<div class="chart-loading">
+						<div class="spinner"></div>
+						<p>Loading chart...</p>
+					</div>
+				{:then { default: LineChart }}
+					<LineChart labels={costChartData.labels} datasets={costChartData.datasets} height={300} />
+				{/await}
 			</Panel>
 		</div>
 
@@ -265,21 +281,35 @@
 		<div class="charts-grid">
 			<Panel variant="bordered" padding="lg">
 				<h2 class="chart-title">Top 10 Skills by Usage</h2>
-				<BarChart
-					labels={topSkillsChartData.labels}
-					datasets={topSkillsChartData.datasets}
-					height={350}
-					horizontal={true}
-				/>
+				{#await BarChartPromise}
+					<div class="chart-loading">
+						<div class="spinner"></div>
+						<p>Loading chart...</p>
+					</div>
+				{:then { default: BarChart }}
+					<BarChart
+						labels={topSkillsChartData.labels}
+						datasets={topSkillsChartData.datasets}
+						height={350}
+						horizontal={true}
+					/>
+				{/await}
 			</Panel>
 
 			<Panel variant="bordered" padding="lg">
 				<h2 class="chart-title">Model Usage Distribution</h2>
-				<BarChart
-					labels={modelUsageChartData.labels}
-					datasets={modelUsageChartData.datasets}
-					height={350}
-				/>
+				{#await BarChartPromise}
+					<div class="chart-loading">
+						<div class="spinner"></div>
+						<p>Loading chart...</p>
+					</div>
+				{:then { default: BarChart }}
+					<BarChart
+						labels={modelUsageChartData.labels}
+						datasets={modelUsageChartData.datasets}
+						height={350}
+					/>
+				{/await}
 			</Panel>
 		</div>
 
@@ -564,6 +594,23 @@
 		to {
 			transform: rotate(360deg);
 		}
+	}
+
+	/* Chart Loading State */
+	.chart-loading {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		justify-content: center;
+		gap: var(--spacing-md);
+		padding: var(--spacing-3xl) var(--spacing-xl);
+		min-height: 300px;
+		text-align: center;
+	}
+
+	.chart-loading p {
+		color: var(--color-text-tertiary);
+		margin: 0;
 	}
 
 	/* Empty State */

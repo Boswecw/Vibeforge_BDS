@@ -1,5 +1,4 @@
-import { X as store_get, a0 as unsubscribe_stores } from "../../../../chunks/index2.js";
-import { p as page } from "../../../../chunks/stores.js";
+import { s as store_get, u as unsubscribe_stores, p as page } from "../../../../chunks/vendor.js";
 import "../../../../chunks/Pagination.svelte_svelte_type_style_lang.js";
 /* empty css                                                     */
 function _page($$renderer, $$props) {
