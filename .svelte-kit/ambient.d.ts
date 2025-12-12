@@ -42,7 +42,6 @@ declare module '$env/static/private' {
 	export const CLAUDE_AGENT_SDK_VERSION: string;
 	export const SHLVL: string;
 	export const HOME: string;
-	export const OLDPWD: string;
 	export const VITE_DATAFORGE_API_BASE: string;
 	export const VSCODE_RECONNECTION_GRACE_TIME: string;
 	export const NVM_BIN: string;
@@ -152,7 +151,6 @@ declare module '$env/dynamic/private' {
 		CLAUDE_AGENT_SDK_VERSION: string;
 		SHLVL: string;
 		HOME: string;
-		OLDPWD: string;
 		VITE_DATAFORGE_API_BASE: string;
 		VSCODE_RECONNECTION_GRACE_TIME: string;
 		NVM_BIN: string;

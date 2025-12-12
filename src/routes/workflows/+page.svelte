@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Panel, Badge, Button, Input, Select, Alert } from '$lib/components';
+	import { Panel, Badge, Button, Input, Select, Alert, DragDropWorkflow } from '$lib/components';
 	import { skillRegistry } from '$lib/api/skillRegistry';
 	import { onMount } from 'svelte';
 	import type { Skill } from '$lib/api/types';
@@ -181,19 +181,6 @@
 		</div>
 	</div>
 
-	<!-- Coming Soon Alert -->
-	<Alert variant="info" title="Workflow Builder Coming Soon">
-		The visual workflow builder is under development. You can create and manage workflows by
-		chaining multiple skills together. This feature will support:
-		<ul>
-			<li>Drag-and-drop workflow building</li>
-			<li>Conditional branching and loops</li>
-			<li>Data passing between skills</li>
-			<li>Workflow templates and sharing</li>
-			<li>Execution scheduling and monitoring</li>
-		</ul>
-	</Alert>
-
 	<!-- Main Content -->
 	<div class="content-grid">
 		<!-- Workflows List -->
@@ -285,78 +272,29 @@
 		</Panel>
 
 		<!-- Workflow Details/Builder -->
-		<Panel variant="bordered" padding="lg">
-			{#if selectedWorkflow}
-				<div class="workflow-builder">
-					<div class="builder-header">
-						<h2>{selectedWorkflow.name}</h2>
-						<Badge variant={getStatusVariant(selectedWorkflow.status)} size="sm">
-							{selectedWorkflow.status}
-						</Badge>
-					</div>
-
-					<p class="builder-description">
-						{selectedWorkflow.description || 'No description provided'}
-					</p>
-
-					<!-- Steps -->
-					<div class="steps-section">
-						<h3>Workflow Steps</h3>
-
-						{#if selectedWorkflow.steps.length === 0}
-							<div class="empty-state">
-								<p>No steps added yet. Add skills below to build your workflow.</p>
-							</div>
-						{:else}
-							<div class="steps-list">
-								{#each selectedWorkflow.steps as step, index (step.id)}
-									<div class="step-card">
-										<div class="step-number">{index + 1}</div>
-										<div class="step-content">
-											<div class="step-name">{step.skillName}</div>
-											<code class="step-id">{step.skillId}</code>
-										</div>
-										<Button
-											variant="ghost"
-											size="sm"
-											on:click={() => removeStep(selectedWorkflow.id, step.id)}
-										>
-											Remove
-										</Button>
-									</div>
-									{#if index < selectedWorkflow.steps.length - 1}
-										<div class="step-connector">↓</div>
-									{/if}
-								{/each}
-							</div>
-						{/if}
-					</div>
-
-					<!-- Add Step -->
-					<div class="add-step-section">
-						<h3>Add Step</h3>
-						<div class="add-step-form">
-							<Select
-								options={skills.map((s) => ({ value: s.id, label: s.name }))}
-								placeholder="Select a skill to add..."
-								fullWidth
-								on:change={(e) => {
-									const skillId = (e.target as HTMLSelectElement).value;
-									if (skillId) {
-										addStep(selectedWorkflow.id, skillId);
-										(e.target as HTMLSelectElement).value = '';
-									}
-								}}
-							/>
-						</div>
-					</div>
-				</div>
-			{:else}
+		{#if selectedWorkflow}
+			<DragDropWorkflow
+				skills={skills}
+				initialSteps={selectedWorkflow.steps}
+				onSave={(steps) => {
+					workflows = workflows.map((w) => {
+						if (w.id === selectedWorkflow.id) {
+							return { ...w, steps };
+						}
+						return w;
+					});
+					saveWorkflows();
+					selectedWorkflow = workflows.find((w) => w.id === selectedWorkflow.id) || null;
+				}}
+				onCancel={() => (selectedWorkflow = null)}
+			/>
+		{:else}
+			<Panel variant="bordered" padding="lg">
 				<div class="no-selection">
 					<p>Select a workflow from the list to view and edit its steps.</p>
 				</div>
-			{/if}
-		</Panel>
+			</Panel>
+		{/if}
 	</div>
 </div>
 

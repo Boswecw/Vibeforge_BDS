@@ -31,6 +31,9 @@ export { default as StreamingExecutionPanel } from './StreamingExecutionPanel.sv
 // Navigation Components
 export { default as Pagination } from './Pagination.svelte';
 
+// Workflow Components
+export { default as DragDropWorkflow } from './DragDropWorkflow.svelte';
+
 // System Components
 export { default as UpdateBanner } from './UpdateBanner.svelte';
 export { default as CommandPalette } from './CommandPalette.svelte';

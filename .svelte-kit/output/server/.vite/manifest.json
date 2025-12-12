@@ -471,13 +471,12 @@
     "isEntry": true,
     "imports": [
       "_vendor.js",
-      "_Alert.js",
       "_Panel.js",
       "_Button.js",
       "_Badge.js"
     ],
     "css": [
-      "_app/immutable/assets/_page.B8369I0S.css"
+      "_app/immutable/assets/_page.BiSPWmQz.css"
     ]
   }
 }
