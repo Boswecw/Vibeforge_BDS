@@ -27,3 +27,6 @@ export { default as ErrorNotifications } from './ErrorNotifications.svelte';
 
 // Execution Components
 export { default as StreamingExecutionPanel } from './StreamingExecutionPanel.svelte';
+
+// Navigation Components
+export { default as Pagination } from './Pagination.svelte';

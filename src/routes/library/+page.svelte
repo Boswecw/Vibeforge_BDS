@@ -2,18 +2,25 @@
   import { onMount } from 'svelte';
   import { skillRegistry } from '$lib/api/skillRegistry';
   import type { Skill } from '$lib/api/types';
-  import { Panel, Input, Select, Button, Badge, Alert } from '$lib/components';
+  import { Panel, Input, Select, Button, Badge, Alert, Pagination } from '$lib/components';
+  import { debounce } from '$lib/utils';
 
   let skills: Skill[] = $state([]);
+  let paginatedSkills: Skill[] = $state([]);
   let filteredSkills: Skill[] = $state([]);
   let loading = $state(true);
   let error = $state<string | null>(null);
 
   // Filter states
   let searchQuery = $state('');
+  let debouncedSearchQuery = $state('');
   let selectedSection = $state<string>('all');
   let selectedCategory = $state<string>('all');
   let selectedAccess = $state<'all' | 'PUBLIC' | 'BDS_ONLY'>('all');
+
+  // Pagination
+  let currentPage = $state(1);
+  const itemsPerPage = 50;
 
   // View modes
   let viewMode = $state<'grid' | 'list'>('grid');
@@ -72,13 +79,18 @@
     }
   });
 
+  // Debounced search handler
+  const debouncedSearch = debounce((query: string) => {
+    debouncedSearchQuery = query;
+  }, 300);
+
   // Filter logic
   function applyFilters() {
     let result = [...skills];
 
     // Search filter
-    if (searchQuery.trim()) {
-      const q = searchQuery.toLowerCase();
+    if (debouncedSearchQuery.trim()) {
+      const q = debouncedSearchQuery.toLowerCase();
       result = result.filter(
         (s) =>
           s.name.toLowerCase().includes(q) ||
@@ -111,23 +123,42 @@
     });
 
     filteredSkills = result;
+
+    // Apply pagination
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    paginatedSkills = result.slice(startIndex, endIndex);
   }
 
   // Reactive filtering
   $effect(() => {
-    searchQuery;
+    debouncedSearchQuery;
     selectedSection;
     selectedCategory;
     selectedAccess;
     sortBy;
+    currentPage;
     applyFilters();
+  });
+
+  // Watch search query and debounce it
+  $effect(() => {
+    debouncedSearch(searchQuery);
   });
 
   function clearFilters() {
     searchQuery = '';
+    debouncedSearchQuery = '';
     selectedSection = 'all';
     selectedCategory = 'all';
     selectedAccess = 'all';
+    currentPage = 1;
+  }
+
+  function handlePageChange(page: number) {
+    currentPage = page;
+    // Scroll to top of results
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 </script>
 
@@ -238,7 +269,7 @@
       </Panel>
     {:else}
       <div class="skills-{viewMode}">
-        {#each filteredSkills as skill (skill.id)}
+        {#each paginatedSkills as skill (skill.id)}
           <a href="/library/{skill.id}" class="skill-link">
             <Panel variant="bordered" padding="lg">
               <div class="skill-header">
@@ -284,6 +315,16 @@
             </Panel>
           </a>
         {/each}
+
+      <!-- Pagination -->
+      {#if filteredSkills.length > itemsPerPage}
+        <Pagination
+          bind:currentPage
+          totalItems={filteredSkills.length}
+          {itemsPerPage}
+          onPageChange={handlePageChange}
+        />
+      {/if}
       </div>
     {/if}
   </div>
