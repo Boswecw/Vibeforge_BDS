@@ -412,6 +412,7 @@
 			class="command-palette-container"
 			onclick={(e) => e.stopPropagation()}
 			role="dialog"
+			tabindex="-1"
 			aria-modal="true"
 			aria-labelledby="command-palette-title"
 		>

@@ -51,7 +51,7 @@
   <div class="header-right">
     <!-- Search Bar -->
     {#if showSearch}
-      <form class="search-form" on:submit={handleSearch}>
+      <form class="search-form" onsubmit={handleSearch}>
         <input
           type="text"
           class="search-input"
@@ -68,7 +68,7 @@
     {#if showNotifications}
       <button
         class="icon-button"
-        on:click={handleNotifications}
+        onclick={handleNotifications}
         aria-label="Notifications"
       >
         <span class="icon">🔔</span>
@@ -80,7 +80,7 @@
 
     <!-- User Menu -->
     {#if showUser}
-      <button class="user-button" on:click={handleUserMenu} aria-label="User menu">
+      <button class="user-button" onclick={handleUserMenu} aria-label="User menu">
         <div class="avatar">
           <span class="avatar-text">U</span>
         </div>

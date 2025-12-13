@@ -57,7 +57,7 @@
 	}
 </script>
 
-<form on:submit|preventDefault={handleSubmit} class="request-form">
+<form onsubmit={(e) => { e.preventDefault(); handleSubmit(); }} class="request-form">
 	{#if error}
 		<Alert variant="error">
 			{error.userMessage}

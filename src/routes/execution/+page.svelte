@@ -61,17 +61,17 @@
 									</div>
 								{/if}
 
-								{#if currentSession.result.testResults}
+								{#if currentSession.result.tests}
 									<div class="section-block">
 										<h3>Test Results</h3>
-										<TestResults results={currentSession.result.testResults} />
+										<TestResults results={currentSession.result.tests} />
 									</div>
 								{/if}
 
-								{#if currentSession.result.filesModified && currentSession.result.filesModified.length > 0}
+								{#if currentSession.result.code?.filesModified && currentSession.result.code.filesModified.length > 0}
 									<div class="section-block">
 										<h3>File Changes</h3>
-										<FileChanges changes={currentSession.result.filesModified} />
+										<FileChanges changes={currentSession.result.code.filesModified} />
 									</div>
 								{/if}
 

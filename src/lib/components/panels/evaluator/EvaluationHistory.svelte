@@ -108,10 +108,10 @@
 								</span>
 								<span class="stat-label">overall</span>
 							</div>
-							{#if session.assessment.code_review}
+							{#if session.assessment.code_review?.findings}
 								<div class="stat">
 									<span class="stat-icon">🔍</span>
-									<span class="stat-value">{session.assessment.code_review.length}</span>
+									<span class="stat-value">{session.assessment.code_review.findings.length}</span>
 									<span class="stat-label">reviews</span>
 								</div>
 							{/if}

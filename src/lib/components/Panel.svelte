@@ -2,17 +2,19 @@
   // Props
   export let title: string = '';
   export let subtitle: string = '';
-  export let variant: 'default' | 'elevated' | 'bordered' | 'glass' = 'default';
+  export let variant: 'default' | 'elevated' | 'bordered' | 'glass' | 'error' = 'default';
   export let padding: 'none' | 'sm' | 'md' | 'lg' = 'md';
   export let headerDivider: boolean = true;
   export let footerDivider: boolean = true;
+  let className: string = '';
+  export { className as class };
 
   // Slots check
   let hasHeader = false;
   let hasFooter = false;
 
   // Compute classes
-  $: panelClasses = ['panel', `panel-${variant}`, `panel-padding-${padding}`]
+  $: panelClasses = ['panel', `panel-${variant}`, `panel-padding-${padding}`, className]
     .filter(Boolean)
     .join(' ');
 </script>
@@ -89,6 +91,11 @@
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .panel-error {
+    background-color: var(--color-surface-2);
+    border: 1px solid var(--color-error);
   }
 
   /* ─────────────────────────────────────────────────────────────────────

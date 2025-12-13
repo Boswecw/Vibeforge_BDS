@@ -11,6 +11,7 @@
   export let closeOnEscape: boolean = true;
   export let showClose: boolean = true;
   export let showFooter: boolean = true;
+  export let onClose: (() => void) | undefined = undefined;
 
   const dispatch = createEventDispatcher();
   let focusTrap: FocusTrap | null = null;
@@ -53,6 +54,7 @@
   function close() {
     open = false;
     dispatch('close');
+    if (onClose) onClose();
   }
 </script>
 

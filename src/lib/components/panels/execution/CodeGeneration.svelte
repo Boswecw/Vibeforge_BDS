@@ -1,8 +1,15 @@
 <script lang="ts">
 	import Button from '$lib/components/Button.svelte';
+	import type { FileModification, FileCreation } from '$lib/types/agents';
+
+	interface CodeOutput {
+		filesModified: FileModification[];
+		filesCreated: FileCreation[];
+		filesDeleted: string[];
+	}
 
 	interface Props {
-		code: string;
+		code: CodeOutput | string;
 		isStreaming: boolean;
 		language?: string;
 	}
@@ -11,9 +18,50 @@
 
 	let codeContainer: HTMLPreElement;
 
+	// Type guard for CodeOutput
+	function isCodeOutput(value: CodeOutput | string): value is CodeOutput {
+		return typeof value === 'object' && value !== null && 'filesModified' in value;
+	}
+
+	// Combine all code from created and modified files for display
+	$effect(() => {
+		// Effect for syntax highlighting if needed in the future
+	});
+
+	function getCodeContent(): string {
+		// If code is a string (streaming), return it directly
+		if (typeof code === 'string') {
+			return code;
+		}
+
+		// Otherwise, build content from CodeOutput
+		const sections: string[] = [];
+		
+		if (code.filesCreated?.length > 0) {
+			for (const file of code.filesCreated) {
+				sections.push(`// === ${file.path} (new file) ===\n${file.content}`);
+			}
+		}
+		
+		if (code.filesModified?.length > 0) {
+			for (const file of code.filesModified) {
+				sections.push(`// === ${file.path} (modified) ===\n${file.diff}`);
+			}
+		}
+		
+		return sections.join('\n\n');
+	}
+
+	function hasContent(): boolean {
+		if (typeof code === 'string') {
+			return code.length > 0;
+		}
+		return (code.filesCreated?.length ?? 0) > 0 || (code.filesModified?.length ?? 0) > 0;
+	}
+
 	async function copyCode(): Promise<void> {
 		try {
-			await navigator.clipboard.writeText(code);
+			await navigator.clipboard.writeText(getCodeContent());
 			// TODO: Show success toast
 		} catch (err) {
 			console.error('Failed to copy code:', err);
@@ -25,7 +73,7 @@
 	<div class="code-header">
 		<h4>Generated Code</h4>
 		<div class="code-actions">
-			<Button variant="secondary" size="sm" onclick={copyCode} disabled={!code}>
+			<Button variant="secondary" size="sm" onclick={copyCode} disabled={!hasContent()}>
 				Copy
 			</Button>
 		</div>
@@ -33,7 +81,7 @@
 
 	{#if code || isStreaming}
 		<div class="code-container" class:streaming={isStreaming}>
-			<pre bind:this={codeContainer} class="code-block language-{language}"><code>{code}</code></pre>
+			<pre bind:this={codeContainer} class="code-block language-{language}"><code>{getCodeContent()}</code></pre>
 
 			{#if isStreaming}
 				<div class="streaming-indicator">

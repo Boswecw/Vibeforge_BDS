@@ -1,7 +1,7 @@
 <script lang="ts">
 	import Badge from '$lib/components/Badge.svelte';
 	import { formatScore, getComplianceStatus } from '$lib/services/evaluatorService';
-	import type { SasCompliance as SasComplianceType } from '$lib/types/agents';
+	import type { SasCompliance as SasComplianceType, ArchitecturePattern, NamingConvention, CodeStandard, ComplianceCategory } from '$lib/types/agents';
 
 	interface Props {
 		compliance: SasComplianceType | null;
@@ -9,14 +9,28 @@
 
 	let { compliance }: Props = $props();
 
-	function getComplianceBadgeVariant(score: number): 'success' | 'warning' | 'danger' {
-		if (score >= 0.9) return 'success';
-		if (score >= 0.7) return 'warning';
+	function getComplianceBadgeVariant(score: number | undefined): 'success' | 'warning' | 'danger' {
+		const s = score ?? 0;
+		if (s >= 0.9) return 'success';
+		if (s >= 0.7) return 'warning';
 		return 'danger';
 	}
 
-	function getStatusIcon(compliant: boolean): string {
+	function getStatusIcon(compliant: boolean | undefined): string {
 		return compliant ? '✅' : '❌';
+	}
+
+	// Type guards for union types
+	function isPatternArray(val: ArchitecturePattern[] | ComplianceCategory | undefined): val is ArchitecturePattern[] {
+		return Array.isArray(val);
+	}
+
+	function isConventionArray(val: NamingConvention[] | ComplianceCategory | undefined): val is NamingConvention[] {
+		return Array.isArray(val);
+	}
+
+	function isStandardArray(val: CodeStandard[] | ComplianceCategory | undefined): val is CodeStandard[] {
+		return Array.isArray(val);
 	}
 </script>
 
@@ -43,7 +57,7 @@
 		</div>
 
 		<!-- Architecture Patterns -->
-		{#if compliance.architecture_patterns}
+		{#if compliance.architecture_patterns && isPatternArray(compliance.architecture_patterns)}
 			<div class="compliance-section">
 				<h4>Architecture Patterns</h4>
 				<div class="patterns-list">
@@ -66,7 +80,7 @@
 		{/if}
 
 		<!-- Naming Conventions -->
-		{#if compliance.naming_conventions}
+		{#if compliance.naming_conventions && isConventionArray(compliance.naming_conventions)}
 			<div class="compliance-section">
 				<h4>Naming Conventions</h4>
 				<div class="conventions-grid">
@@ -104,9 +118,9 @@
 				<h4>File Structure</h4>
 				<div class="structure-card">
 					<div class="structure-header">
-						<span class="structure-icon">{getStatusIcon(compliance.file_structure.compliant)}</span>
-						<Badge variant={compliance.file_structure.compliant ? 'success' : 'warning'}>
-							{compliance.file_structure.compliant ? 'Compliant' : 'Issues Found'}
+						<span class="structure-icon">{getStatusIcon(compliance.file_structure.compliant ?? compliance.file_structure.passed)}</span>
+						<Badge variant={(compliance.file_structure.compliant ?? compliance.file_structure.passed) ? 'success' : 'warning'}>
+							{(compliance.file_structure.compliant ?? compliance.file_structure.passed) ? 'Compliant' : 'Issues Found'}
 						</Badge>
 					</div>
 					{#if compliance.file_structure.issues && compliance.file_structure.issues.length > 0}
@@ -134,7 +148,7 @@
 		{/if}
 
 		<!-- Code Standards -->
-		{#if compliance.code_standards}
+		{#if compliance.code_standards && isStandardArray(compliance.code_standards)}
 			<div class="compliance-section">
 				<h4>Code Standards</h4>
 				<div class="standards-grid">

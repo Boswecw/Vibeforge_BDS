@@ -17,6 +17,10 @@
   export let min: number | undefined = undefined;
   export let max: number | undefined = undefined;
   export let step: number | undefined = undefined;
+  
+  // Text input specific props
+  let maxlength: number | undefined = undefined;
+  export { maxlength as maxlength };
 
   // State
   let focused = false;
@@ -64,6 +68,7 @@
       min={type === 'number' ? min : undefined}
       max={type === 'number' ? max : undefined}
       step={type === 'number' ? step : undefined}
+      maxlength={maxlength}
       bind:value
       class={inputClasses}
       on:focus={handleFocus}

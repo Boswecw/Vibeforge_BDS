@@ -330,11 +330,11 @@
 								</div>
 								<div class="meta-item">
 									<span class="meta-label">Model</span>
-									<Badge variant="info" size="sm">{invocationResult.metadata.model_used}</Badge>
+									<Badge variant="info" size="sm">{invocationResult.metadata.model}</Badge>
 								</div>
 								<div class="meta-item">
 									<span class="meta-label">Tokens</span>
-									<Badge variant="default" size="sm">{invocationResult.metadata.tokens_used}</Badge>
+									<Badge variant="default" size="sm">{invocationResult.metadata.tokensUsed}</Badge>
 								</div>
 								<div class="meta-item">
 									<span class="meta-label">Cost</span>
@@ -342,7 +342,7 @@
 								</div>
 								<div class="meta-item">
 									<span class="meta-label">Latency</span>
-									<Badge variant="default" size="sm">{invocationResult.metadata.latency_ms}ms</Badge>
+									<Badge variant="default" size="sm">{invocationResult.metadata.latency}ms</Badge>
 								</div>
 							</div>
 

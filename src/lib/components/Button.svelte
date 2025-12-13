@@ -8,6 +8,11 @@
   export let type: 'button' | 'submit' | 'reset' = 'button';
   export let href: string | undefined = undefined;
   export let onclick: ((event: MouseEvent) => void) | undefined = undefined;
+  export let title: string | undefined = undefined;
+  let ariaLabel: string | undefined = undefined;
+  export { ariaLabel as 'aria-label' };
+  let ariaCurrent: 'page' | 'step' | 'location' | 'date' | 'time' | boolean | undefined = undefined;
+  export { ariaCurrent as 'aria-current' };
 
   // Compute classes
   $: classes = [
@@ -26,14 +31,14 @@
 </script>
 
 {#if isLink}
-  <a {href} class={classes} aria-disabled={disabled} role="button" {onclick}>
+  <a {href} class={classes} aria-disabled={disabled} role="button" {onclick} aria-label={ariaLabel} {title} aria-current={ariaCurrent}>
     {#if loading}
       <span class="spinner" aria-hidden="true"></span>
     {/if}
     <slot />
   </a>
 {:else}
-  <button {type} class={classes} {disabled} {onclick}>
+  <button {type} class={classes} {disabled} {onclick} aria-label={ariaLabel} {title} aria-current={ariaCurrent}>
     {#if loading}
       <span class="spinner" aria-hidden="true"></span>
     {/if}

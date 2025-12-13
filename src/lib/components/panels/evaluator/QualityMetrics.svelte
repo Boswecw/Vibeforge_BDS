@@ -144,12 +144,13 @@
 			{/if}
 
 			<!-- Complexity -->
-			{#if metrics.complexity}
+			{#if metrics.complexity !== undefined}
+				{@const complexityValue = typeof metrics.complexity === 'string' ? metrics.complexity : (metrics.complexity < 5 ? 'low' : metrics.complexity < 10 ? 'medium' : 'high')}
 				<div class="metric-card">
 					<div class="metric-header">
 						<div class="metric-title">Complexity</div>
-						<Badge variant={metrics.complexity === 'low' ? 'success' : metrics.complexity === 'medium' ? 'warning' : 'danger'}>
-							{metrics.complexity.toUpperCase()}
+						<Badge variant={complexityValue === 'low' ? 'success' : complexityValue === 'medium' ? 'warning' : 'danger'}>
+							{complexityValue.toUpperCase()}
 						</Badge>
 					</div>
 					<div class="metric-details">

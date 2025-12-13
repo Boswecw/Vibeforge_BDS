@@ -27,14 +27,11 @@ export {};
 
 declare module "$app/types" {
 	export interface AppTypes {
-		RouteId(): "/(billing)" | "/(auth)" | "/(admin)" | "/" | "/admin" | "/admin/agents" | "/agents" | "/analytics" | "/architecture" | "/architecture/lib" | "/architecture/lib/components" | "/architecture/lib/utils" | "/coordinator" | "/evaluator" | "/execution" | "/history" | "/library" | "/library/[id]" | "/models" | "/planning" | "/settings" | "/test-api" | "/testing" | "/workflows";
+		RouteId(): "/" | "/admin" | "/admin/agents" | "/agents" | "/analytics" | "/architecture" | "/architecture/lib" | "/architecture/lib/components" | "/architecture/lib/utils" | "/coordinator" | "/evaluator" | "/execution" | "/history" | "/library" | "/library/[id]" | "/models" | "/planning" | "/settings" | "/test-api" | "/testing" | "/workflows";
 		RouteParams(): {
 			"/library/[id]": { id: string }
 		};
 		LayoutParams(): {
-			"/(billing)": Record<string, never>;
-			"/(auth)": Record<string, never>;
-			"/(admin)": Record<string, never>;
 			"/": { id?: string };
 			"/admin": Record<string, never>;
 			"/admin/agents": Record<string, never>;

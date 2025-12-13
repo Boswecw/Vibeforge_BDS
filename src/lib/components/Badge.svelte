@@ -1,6 +1,6 @@
 <script lang="ts">
   // Props
-  export let variant: 'default' | 'accent' | 'success' | 'warning' | 'error' | 'info' = 'default';
+  export let variant: 'default' | 'accent' | 'success' | 'warning' | 'error' | 'info' | 'primary' | 'secondary' | 'danger' | 'neutral' = 'default';
   export let size: 'sm' | 'md' | 'lg' = 'md';
   export let dot: boolean = false;
   export let outline: boolean = false;
@@ -137,6 +137,54 @@
     background-color: transparent;
     border: 1px solid var(--color-info);
     color: var(--color-info);
+  }
+
+  /* Primary */
+  .badge-primary {
+    background-color: var(--color-accent);
+    color: white;
+  }
+
+  .badge-primary.badge-outline {
+    background-color: transparent;
+    border: 1px solid var(--color-accent);
+    color: var(--color-accent);
+  }
+
+  /* Secondary */
+  .badge-secondary {
+    background-color: var(--color-graphite);
+    color: var(--color-text-secondary);
+  }
+
+  .badge-secondary.badge-outline {
+    background-color: transparent;
+    border: 1px solid var(--color-border-default);
+    color: var(--color-text-secondary);
+  }
+
+  /* Danger (alias for error) */
+  .badge-danger {
+    background-color: var(--color-error);
+    color: white;
+  }
+
+  .badge-danger.badge-outline {
+    background-color: transparent;
+    border: 1px solid var(--color-error);
+    color: var(--color-error);
+  }
+
+  /* Neutral */
+  .badge-neutral {
+    background-color: var(--color-graphite);
+    color: var(--color-text-secondary);
+  }
+
+  .badge-neutral.badge-outline {
+    background-color: transparent;
+    border: 1px solid var(--color-border-subtle);
+    color: var(--color-text-tertiary);
   }
 
   /* ─────────────────────────────────────────────────────────────────────

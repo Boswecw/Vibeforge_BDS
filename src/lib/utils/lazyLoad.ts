@@ -5,35 +5,39 @@
  * to improve initial load performance.
  */
 
-import type { ComponentType, SvelteComponent } from 'svelte';
+import type { ComponentType } from "svelte";
 
 /**
  * Lazy load a Svelte component
- * Returns a component that shows a loading state while the actual component loads
+ * Returns a promise that resolves to the component
  *
  * @example
  * ```typescript
- * const LazyChart = lazyLoad(() => import('$lib/components/Chart.svelte'));
+ * const LazyChart = await lazyLoad(() => import('$lib/components/Chart.svelte'));
  * ```
  */
-export function lazyLoad<T extends ComponentType>(
-	componentLoader: () => Promise<{ default: T }>
-): ComponentType {
-	return class LazyComponent extends SvelteComponent {
-		constructor(options: any) {
-			super();
+export async function lazyLoad<T extends ComponentType>(
+  componentLoader: () => Promise<{ default: T }>
+): Promise<T> {
+  const module = await componentLoader();
+  return module.default;
+}
 
-			// Load the component
-			componentLoader().then((module) => {
-				// Replace this placeholder with the actual component
-				const Component = module.default;
-				new Component({
-					...options,
-					target: options.target
-				});
-			});
-		}
-	} as any;
+/**
+ * Create a lazy component wrapper that loads on first render
+ * For use in Svelte 5, returns a function that can be called to get the component
+ */
+export function createLazyComponent<T extends ComponentType>(
+  componentLoader: () => Promise<{ default: T }>
+): () => Promise<T> {
+  let cached: T | null = null;
+  return async () => {
+    if (!cached) {
+      const module = await componentLoader();
+      cached = module.default;
+    }
+    return cached;
+  };
 }
 
 /**
@@ -49,9 +53,9 @@ export function lazyLoad<T extends ComponentType>(
  * ```
  */
 export function preloadComponent(
-	componentLoader: () => Promise<any>
+  componentLoader: () => Promise<any>
 ): Promise<any> {
-	return componentLoader();
+  return componentLoader();
 }
 
 /**
@@ -68,54 +72,32 @@ export function preloadComponent(
  * ```
  */
 export async function preloadComponents(
-	loaders: Array<() => Promise<any>>
+  loaders: Array<() => Promise<any>>
 ): Promise<any[]> {
-	return Promise.all(loaders.map(loader => loader()));
+  return Promise.all(loaders.map((loader) => loader()));
 }
 
 /**
  * Lazy load a component with a custom loading fallback
+ * Returns the loaded component after resolving
  *
  * @example
- * ```svelte
- * <script>
- *   const HeavyComponent = lazyLoadWithFallback(
- *     () => import('./HeavyComponent.svelte'),
- *     LoadingSpinner
- *   );
- * </script>
- *
- * <HeavyComponent />
+ * ```typescript
+ * const HeavyComponent = await lazyLoadWithFallback(
+ *   () => import('./HeavyComponent.svelte'),
+ *   LoadingSpinner
+ * );
  * ```
  */
-export function lazyLoadWithFallback<T extends ComponentType>(
-	componentLoader: () => Promise<{ default: T }>,
-	fallbackComponent: ComponentType
-): ComponentType {
-	return class LazyComponentWithFallback extends SvelteComponent {
-		constructor(options: any) {
-			super();
-
-			// Show fallback initially
-			const fallback = new fallbackComponent({
-				...options,
-				target: options.target
-			});
-
-			// Load the actual component
-			componentLoader().then((module) => {
-				// Destroy fallback
-				fallback.$destroy();
-
-				// Render actual component
-				const Component = module.default;
-				new Component({
-					...options,
-					target: options.target
-				});
-			});
-		}
-	} as any;
+export async function lazyLoadWithFallback<T extends ComponentType>(
+  componentLoader: () => Promise<{ default: T }>,
+  _fallbackComponent: ComponentType
+): Promise<T> {
+  // In Svelte 5, handle loading state in the parent component
+  // The fallback is provided for API compatibility but loading
+  // state should be handled declaratively in the template
+  const module = await componentLoader();
+  return module.default;
 }
 
 /**
@@ -123,9 +105,11 @@ export function lazyLoadWithFallback<T extends ComponentType>(
  * Useful for avoiding redundant preloading
  */
 export function isModuleLoaded(modulePath: string): boolean {
-	// Check if the module is in Vite's module cache
-	return typeof window !== 'undefined' &&
-	       !!(window as any).__vite_module_cache?.[modulePath];
+  // Check if the module is in Vite's module cache
+  return (
+    typeof window !== "undefined" &&
+    !!(window as any).__vite_module_cache?.[modulePath]
+  );
 }
 
 /**
@@ -140,17 +124,17 @@ export function isModuleLoaded(modulePath: string): boolean {
  * ```
  */
 export async function preloadImages(urls: string[]): Promise<void[]> {
-	return Promise.all(
-		urls.map(
-			url =>
-				new Promise<void>((resolve, reject) => {
-					const img = new Image();
-					img.onload = () => resolve();
-					img.onerror = reject;
-					img.src = url;
-				})
-		)
-	);
+  return Promise.all(
+    urls.map(
+      (url) =>
+        new Promise<void>((resolve, reject) => {
+          const img = new Image();
+          img.onload = () => resolve();
+          img.onerror = reject;
+          img.src = url;
+        })
+    )
+  );
 }
 
 /**
@@ -177,32 +161,32 @@ export async function preloadImages(urls: string[]): Promise<void[]> {
  * ```
  */
 export function lazyLoadOnVisible(
-	element: HTMLElement,
-	componentLoader: () => Promise<any>,
-	onLoad: (Component: any) => void,
-	options: IntersectionObserverInit = {}
+  element: HTMLElement,
+  componentLoader: () => Promise<any>,
+  onLoad: (Component: any) => void,
+  options: IntersectionObserverInit = {}
 ): () => void {
-	if (!element || typeof IntersectionObserver === 'undefined') {
-		// Fallback: load immediately if IntersectionObserver not supported
-		componentLoader().then(module => onLoad(module.default));
-		return () => {};
-	}
+  if (!element || typeof IntersectionObserver === "undefined") {
+    // Fallback: load immediately if IntersectionObserver not supported
+    componentLoader().then((module) => onLoad(module.default));
+    return () => {};
+  }
 
-	const observer = new IntersectionObserver((entries) => {
-		entries.forEach((entry) => {
-			if (entry.isIntersecting) {
-				componentLoader().then(module => {
-					onLoad(module.default);
-					observer.disconnect();
-				});
-			}
-		});
-	}, options);
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        componentLoader().then((module) => {
+          onLoad(module.default);
+          observer.disconnect();
+        });
+      }
+    });
+  }, options);
 
-	observer.observe(element);
+  observer.observe(element);
 
-	// Return cleanup function
-	return () => observer.disconnect();
+  // Return cleanup function
+  return () => observer.disconnect();
 }
 
 /**
@@ -223,49 +207,49 @@ export function lazyLoadOnVisible(
  * ```
  */
 export function prefetchOnHover(
-	node: HTMLElement,
-	options: {
-		components?: Array<() => Promise<any>>;
-		data?: () => Promise<any>;
-		delay?: number;
-	}
+  node: HTMLElement,
+  options: {
+    components?: Array<() => Promise<any>>;
+    data?: () => Promise<any>;
+    delay?: number;
+  }
 ): { destroy: () => void } {
-	const { components = [], data, delay = 100 } = options;
-	let timeoutId: NodeJS.Timeout;
-	let prefetched = false;
+  const { components = [], data, delay = 100 } = options;
+  let timeoutId: NodeJS.Timeout;
+  let prefetched = false;
 
-	function handleMouseEnter() {
-		if (prefetched) return;
+  function handleMouseEnter() {
+    if (prefetched) return;
 
-		timeoutId = setTimeout(() => {
-			prefetched = true;
+    timeoutId = setTimeout(() => {
+      prefetched = true;
 
-			// Preload components
-			if (components.length > 0) {
-				preloadComponents(components);
-			}
+      // Preload components
+      if (components.length > 0) {
+        preloadComponents(components);
+      }
 
-			// Prefetch data
-			if (data) {
-				data();
-			}
-		}, delay);
-	}
+      // Prefetch data
+      if (data) {
+        data();
+      }
+    }, delay);
+  }
 
-	function handleMouseLeave() {
-		clearTimeout(timeoutId);
-	}
+  function handleMouseLeave() {
+    clearTimeout(timeoutId);
+  }
 
-	node.addEventListener('mouseenter', handleMouseEnter);
-	node.addEventListener('mouseleave', handleMouseLeave);
+  node.addEventListener("mouseenter", handleMouseEnter);
+  node.addEventListener("mouseleave", handleMouseLeave);
 
-	return {
-		destroy() {
-			clearTimeout(timeoutId);
-			node.removeEventListener('mouseenter', handleMouseEnter);
-			node.removeEventListener('mouseleave', handleMouseLeave);
-		}
-	};
+  return {
+    destroy() {
+      clearTimeout(timeoutId);
+      node.removeEventListener("mouseenter", handleMouseEnter);
+      node.removeEventListener("mouseleave", handleMouseLeave);
+    },
+  };
 }
 
 /**
@@ -281,20 +265,20 @@ export function prefetchOnHover(
  * ```
  */
 export async function importWithRetry<T>(
-	importFn: () => Promise<T>,
-	retries: number = 3,
-	delayMs: number = 1000
+  importFn: () => Promise<T>,
+  retries: number = 3,
+  delayMs: number = 1000
 ): Promise<T> {
-	for (let i = 0; i < retries; i++) {
-		try {
-			return await importFn();
-		} catch (error) {
-			if (i === retries - 1) {
-				throw error;
-			}
-			// Wait before retrying
-			await new Promise(resolve => setTimeout(resolve, delayMs * (i + 1)));
-		}
-	}
-	throw new Error('Import failed after retries');
+  for (let i = 0; i < retries; i++) {
+    try {
+      return await importFn();
+    } catch (error) {
+      if (i === retries - 1) {
+        throw error;
+      }
+      // Wait before retrying
+      await new Promise((resolve) => setTimeout(resolve, delayMs * (i + 1)));
+    }
+  }
+  throw new Error("Import failed after retries");
 }

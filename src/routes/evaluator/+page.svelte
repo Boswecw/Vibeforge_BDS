@@ -62,9 +62,9 @@
 							{/if}
 
 							<!-- Code Review -->
-							{#if currentSession.assessment.code_review && currentSession.assessment.code_review.length > 0}
+							{#if currentSession.assessment.code_review?.findings && currentSession.assessment.code_review.findings.length > 0}
 								<Panel title="Code Review" class="mt-6">
-									<CodeReview reviews={currentSession.assessment.code_review} />
+									<CodeReview reviews={currentSession.assessment.code_review.findings} />
 								</Panel>
 							{/if}
 

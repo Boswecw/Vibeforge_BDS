@@ -14,6 +14,9 @@
   export let resize: 'none' | 'vertical' | 'horizontal' | 'both' = 'vertical';
   export let name: string = '';
   export let id: string = name || `textarea-${Math.random().toString(36).substr(2, 9)}`;
+  // Lowercase alias for HTML attribute compatibility
+  let maxlength: number | undefined = undefined;
+  export { maxlength };
 
   // State
   let focused = false;

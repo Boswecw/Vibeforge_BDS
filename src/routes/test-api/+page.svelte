@@ -49,8 +49,7 @@
 					'success',
 					`Logged in successfully (expires: ${authResponse.expires_at})`,
 					{
-						token_type: authResponse.token_type,
-						expires_in: authResponse.expires_in,
+						expires_at: authResponse.expires_at,
 						access_token: authResponse.access_token.slice(0, 50) + '...'
 					}
 				);
@@ -86,10 +85,12 @@
 			currentTest = 'Invoking skill...';
 			try {
 				const result = await forgeAgentsClient.invokeSkill('A1', {
-					prompt: 'Test prompt for API integration',
-					context: {},
-					temperature: 0.7,
-					stream: false
+					inputs: {
+						prompt: 'Test prompt for API integration'
+					},
+					options: {
+						temperature: 0.7
+					}
 				});
 				addResult('Invoke Skill (A1)', 'success', `Invocation completed`, result);
 			} catch (err: any) {

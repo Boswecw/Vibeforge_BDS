@@ -1,9 +1,9 @@
 <script lang="ts">
 	import Badge from '$lib/components/Badge.svelte';
-	import type { CodeReviewItem } from '$lib/types/agents';
+	import type { CodeFinding } from '$lib/types/agents';
 
 	interface Props {
-		reviews: CodeReviewItem[];
+		reviews: CodeFinding[];
 	}
 
 	let { reviews }: Props = $props();
@@ -41,7 +41,7 @@
 	}
 
 	const groupedReviews = $derived(() => {
-		const groups: Record<string, CodeReviewItem[]> = {};
+		const groups: Record<string, CodeFinding[]> = {};
 		reviews.forEach((review) => {
 			const severity = review.severity.toLowerCase();
 			if (!groups[severity]) {

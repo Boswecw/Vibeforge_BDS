@@ -14,7 +14,7 @@
 		return ((currentScore - previousScore) / previousScore) * 100;
 	}
 
-	function formatImprov(improvement: number): string {
+	function formatImprovement(improvement: number): string {
 		const sign = improvement >= 0 ? '+' : '';
 		return `${sign}${improvement.toFixed(1)}%`;
 	}
